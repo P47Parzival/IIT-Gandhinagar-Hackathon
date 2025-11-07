@@ -1,0 +1,78 @@
+# Anomaly Validator Configuration
+
+llm:
+  provider: gemini
+  model: gemini-2.5-flash  # Gemini 2.5 Flash (tested and working)
+  api_key_env: GEMINI_API_KEY  # Environment variable name
+  temperature: 0.2  # Lower for more deterministic outputs
+  max_tokens: 1024
+  timeout: 30  # seconds
+
+news_api:
+  # NewsAPI.org for real news articles (not web scraping)
+  api_key_env: NEWS_API_KEY  # Set environment variable: $env:NEWS_API_KEY='your-key'
+  # Get free API key: https://newsapi.org/ (100 requests/day free tier)
+
+document_processing:
+  supported_formats:
+    - pdf
+    - xlsx
+    - xls
+    - csv
+    - png
+    - jpg
+    - jpeg
+    - docx
+  max_file_size_mb: 50
+  ocr_enabled: true
+  ocr_language: eng
+  extract_tables: true
+
+web_scraping:
+  enable_news: true
+  enable_company: true
+  enable_regulatory: true
+  cache_ttl_hours: 24
+  rate_limit_seconds: 2
+  max_retries: 3
+  timeout: 15  # seconds
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+
+pipeline:
+  mode: realtime  # 'realtime' or 'batch'
+  parallel_workers: 4
+  retry_attempts: 3
+  priority_threshold: 0.8  # Anomaly scores above this are high priority
+
+validation:
+  # CRITICAL: System NEVER unflags anomalies - all require human review
+  can_unflag: false  # Hardcoded to false for security
+  
+  # Document relevance threshold for YELLOW FLAG eligibility
+  relevance_threshold: 7.0  # Out of 10 - documents must be highly relevant
+  
+  # Document authenticity threshold for YELLOW FLAG
+  authenticity_confidence_threshold: 0.8  # Must be 80%+ confident documents are authentic
+  
+  # Explanation completeness threshold for YELLOW FLAG
+  explanation_quality_threshold: 0.9  # 90% - explanation must be nearly complete
+  
+  # Overall confidence required for YELLOW FLAG assignment
+  yellow_flag_confidence_threshold: 0.8  # 80%+ confidence in explanation
+  
+  # Fraud indicators - any count above this triggers automatic RED FLAG
+  max_fraud_indicators_for_yellow: 0  # Zero tolerance for fraud indicators
+  
+  # Document requirements
+  require_documents: true  # At least one supporting document required
+  min_documents_for_yellow: 1  # Minimum documents needed for YELLOW FLAG
+  
+  # Web research (optional but recommended)
+  require_web_context: false  # Not mandatory but adds confidence
+
+output:
+  save_validation_results: true
+  save_web_cache: true
+  generate_reports: true
+  report_format: json  # 'json', 'html', 'pdf'
+

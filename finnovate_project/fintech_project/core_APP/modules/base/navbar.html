@@ -1,0 +1,49 @@
+{% load static %}
+<header>
+  <div style="display: flex; flex-direction: row; align-items: center;">
+    <a class="logo" href="{% url 'landing_page' %}">Finnovate Project 2025</a><div class="stick-thingy-idk" style="font-size: large; color: #999; padding-inline: 1rem">|</div><img src="{% static 'adani_logo.png' %}" alt="" style="height: 1.2rem; width: auto">
+  </div>
+  <nav style="display: flex; flex-direction: row; align-items: center;">
+    {% if user.is_authenticated %}
+    <a 
+      href="{% url 'dashboard_page' %}"
+      style="
+        color: var(--subtle);
+        text-decoration: none;
+        font-weight: 500;
+        "
+      >Dashboard</a>
+      <div class="stick-thingy-idk" style="font-size: large; color: #999; padding-inline: 1rem">|</div>
+    <a 
+      href="{% url 'link_data_page' %}"
+      style="
+        color: var(--subtle);
+        text-decoration: none;
+        font-weight: 500;
+        "
+      >Link Data</a>
+      <div class="stick-thingy-idk" style="font-size: large; color: #999; padding-inline: 1rem">|</div>
+    <a
+      href="{% url 'reports_page' %}"
+      style="
+        color: var(--subtle);
+        text-decoration: none;
+        font-weight: 500;
+      "
+      >Reports</a
+    >
+    <div class="stick-thingy-idk" style="font-size: large; color: #999; padding-inline: 1rem">|</div>
+    <a
+      href="{% url 'auth_logout' %}"
+      style="color: var(--subtle); text-decoration: none; font-weight: 500"
+      >Logout</a
+    >
+    {% else %}
+    <a href="#">Docs</a>
+    <div class="stick-thingy-idk" style="font-size: large; color: #999; padding-inline: 1rem">|</div>
+    <a href="#">Prototype</a>
+    <div class="stick-thingy-idk" style="font-size: large; color: #999; padding-inline: 1rem">|</div>
+    <a href="#">Contact</a>
+    {% endif %}
+  </nav>
+</header>

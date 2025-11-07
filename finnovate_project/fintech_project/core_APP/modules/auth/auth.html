@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Login | Finnovate</title>
+    <link rel="stylesheet" href="{% static 'base.css' %}" />
+    <style>
+      main {
+        /* Ensure the center area spans the viewport for consistent centering */
+        min-height: 100%;
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .login-card {
+        position: relative;
+        z-index: 1;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        width: 100%;
+        max-width: 420px;
+        padding: 2.5rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+        animation: float 6s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--fg);
+      }
+
+      p {
+        color: var(--subtle);
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+      }
+
+      /* Equal-width aligned fields */
+      form {
+        display: grid;
+        gap: 1rem;
+      } /* [web:22] */
+
+      .field {
+        display: grid;
+        gap: 0.4rem;
+      } /* [web:22] */
+
+      label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--subtle);
+        line-height: 1.2;
+      } /* [web:22] */
+
+      input {
+        padding: 0.6rem 0.8rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        font-size: 0.95rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        width: 100%; /* make inputs equal width within the card */
+        box-sizing: border-box; /* ensure padding doesn’t change visual width */
+      } /* [web:22] */
+
+      input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-light);
+        outline: none;
+      }
+
+      .btn {
+        padding: 0.7rem 1.2rem;
+        border-radius: var(--radius);
+        font-weight: 500;
+        border: 1px solid var(--border);
+        cursor: pointer;
+        background: var(--accent);
+        color: white;
+        font-size: 0.95rem;
+      }
+
+      .btn:hover {
+        opacity: 0.9;
+      }
+
+      .links {
+        text-align: center;
+        margin-top: 1rem;
+        font-size: 0.85rem;
+      }
+
+      .links a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .links a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a class="logo" href="{% url 'landing_page' %}">Finnovate Project 2025</a>
+    </header>
+
+    <main>
+      <div class="grid"></div>
+      <div class="login-card">
+        <h1>Welcome back</h1>
+        <p>Sign in to continue to your workspace.</p>
+        <form method="POST" action="{% url 'auth_login' %}">
+          {% csrf_token %}
+          <div class="field">
+            <label for="username">Username</label>
+            <input id="username" type="username" name="username" required />
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password" name="password" required />
+          </div>
+
+          <button type="submit" class="btn">Login</button>
+        </form>
+        <div class="links">
+          <a href="#">Forgot password?</a>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      © 2025 Finnovate Project @IIT-G — Secure Financial Automation
+    </footer>
+    <script>
+      // set main's height to 100vh - footer - header
+      function adjustMainHeight() {
+        const header = document.querySelector("header");
+        const footer = document.querySelector("footer");
+        const main = document.querySelector("main");
+        const headerHeight = header.offsetHeight;
+        const footerHeight = footer.offsetHeight;
+        const viewportHeight = window.innerHeight;
+        const mainHeight = viewportHeight - headerHeight - footerHeight;
+        main.style.minHeight = mainHeight + "px";
+      }
+      window.addEventListener("resize", adjustMainHeight);
+      window.addEventListener("load", adjustMainHeight);
+    </script>
+  </body>
+</html>

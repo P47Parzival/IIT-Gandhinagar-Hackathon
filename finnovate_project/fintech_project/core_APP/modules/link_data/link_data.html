@@ -1,0 +1,570 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Link Data | Finnovate</title>
+    <link rel="stylesheet" href="{% static 'base.css' %}" />
+    <style>
+      main {
+        padding: 2rem;
+        display: grid;
+        grid-template-columns: calc(40% - 1rem) calc(60% - 1rem);
+        gap: 2rem;
+        align-items: start;
+        overflow-y: scroll;
+        scrollbar-width: thin;
+        font: Arial, sans-serif !important;
+      }
+
+      .link-data-div {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .linked-data-div {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: var(--panel-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+      }
+
+      h2 {
+        color: #2563eb;
+        margin-bottom: 0.75rem;
+      }
+
+      .section {
+        background: var(--panel-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+      }
+
+      form {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      label {
+        font-weight: 500;
+      }
+
+      input,
+      select,
+      textarea {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.5rem;
+        font-family: inherit;
+      }
+
+      button {
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 8px;
+        background: var(--accent);
+        color: white;
+        font-weight: 500;
+        cursor: pointer;
+        width: fit-content;
+      }
+
+      button:hover {
+        background: #1e4fb9;
+      }
+
+      .section small {
+        color: var(--subtle);
+        display: block;
+        margin-top: -0.25rem;
+        margin-bottom: 1rem;
+      }
+
+      #toTop {
+        position: fixed;
+        bottom: 2.5rem;
+        left: calc((40% - 1rem) / 2);
+        transform: translateX(-50%);
+        background: var(--accent, #2563eb);
+        color: white;
+        border: none;
+        border-top-left-radius: 50%;
+        border-top-right-radius: 50%;
+        border-bottom-right-radius: 8px;
+        border-bottom-left-radius: 8px;
+        width: 64px;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+        opacity: 0.8;
+        z-index: 1000;
+      }
+
+      #toTop:hover {
+        background: #1e4fb9;
+        opacity: 1;
+        transform: translateX(-50%) scale(1.05);
+      }
+
+      #toTop svg {
+        pointer-events: none;
+      }
+
+      .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+      }
+      .styled-table th,
+      .styled-table td {
+        border: 1px solid #ddd;
+        padding: 8px 12px;
+      }
+      .styled-table th {
+        background-color: #f4f4f4;
+        text-align: left;
+      }
+      .styled-table tr:hover {
+        background-color: #f9f9f9;
+      }
+
+      p {
+        margin: 0;
+      }
+
+      /* Base form layout */
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem; /* Ensures consistent spacing between all fields */
+      }
+
+      /* Each field wrapper */
+      form div {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+      }
+
+      /* Input, select, and textarea styling */
+      input,
+      select,
+      textarea {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.5rem 0.75rem;
+        font-family: inherit;
+        width: 100%; /* Make all fields full width */
+        box-sizing: border-box;
+      }
+
+      /* Label spacing */
+      label {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+      }
+
+      /* Buttons look uniform */
+      button {
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 8px;
+        background: var(--accent);
+        color: white;
+        font-weight: 500;
+        cursor: pointer;
+        width: fit-content;
+      }
+
+      /* Section field group consistency */
+      .odata-fields,
+      .rfc-fields,
+      .hana-fields {
+        display: flex;
+        flex-direction: column;
+      }
+      .odata-fields div {
+        margin-bottom: 1rem;
+      }
+
+      .rfc-fields div {
+        margin-bottom: 1rem;
+      }
+
+      .hana-fields div {
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    {% include 'base/navbar.html' %}
+
+    <main>
+      <div class="grid" id="topOfPage"></div>
+      <div class="link-data-div">
+        <h1 style="color: #000; margin: 0" class="section">
+          Link Data Sources
+        </h1>
+
+        <div class="section">
+          <h2 style="display: flex; align-items: center; gap: 10px">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="#1E90FF"
+            >
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM14 3.5L19.5 9H14V3.5z"
+              />
+            </svg>
+            Upload Files
+          </h2>
+          <small>Upload Excel, CSV, XML, or JSON exports manually.</small>
+
+          <form
+            method="post"
+            action="{% url 'link_data_upload' %}"
+            enctype="multipart/form-data"
+          >
+            {% csrf_token %} {{ file_form.as_p }}
+
+            <button type="submit">Upload File</button>
+          </form>
+        </div>
+
+        <div class="section">
+          <h2 style="display: flex; align-items: center; gap: 10px">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 412.38 204"
+              width="64.75"
+              height="32"
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <polyline
+                fill="#0FAAFF"
+                fill-rule="evenodd"
+                points="0 204 208.413 204 412.38 0 0 0 0 204"
+              />
+              <path
+                fill="#FFFFFF"
+                fill-rule="evenodd"
+                d="m244.727,38.359l-40.593-.025v96.518l-35.46-96.518h-35.16l-30.277,80.716c-3.224-20.352-24.277-27.38-40.84-32.649-10.937-3.512-22.541-8.678-22.434-14.387.091-4.687,6.225-9.04,18.377-8.385,8.17.433,15.373,1.092,29.71,8.006l14.102-24.557c-13.088-6.658-31.169-10.867-45.985-10.883h-.086c-17.277,0-31.677,5.598-40.602,14.824-6.221,6.443-9.572,14.626-9.712,23.679-.227,12.454,4.341,21.292,13.938,28.338,8.104,5.944,18.468,9.794,27.603,12.626,11.27,3.492,20.467,6.526,20.36,13.002-.083,2.355-.977,4.552-2.671,6.337-2.807,2.897-7.124,3.986-13.084,4.098-11.497.243-20.026-1.559-33.61-9.585l-12.536,24.903c13.546,7.705,29.586,12.223,45.952,12.223l2.106-.024c14.247-.256,25.745-4.316,34.929-11.712.527-.416,1.001-.845,1.488-1.277l-4.073,10.874h36.875l6.189-18.822c6.477,2.214,13.847,3.437,21.676,3.437,7.618,0,14.795-1.17,21.156-3.252l5.965,18.637h60.137v-38.969h13.113c31.706,0,50.456-16.147,50.456-43.202,0-30.139-18.219-43.969-57.011-43.969Zm-93.816,82.587c-4.737,0-9.177-.828-13.006-2.275l12.866-40.593h.244l12.643,40.708c-3.801,1.349-8.138,2.16-12.746,2.16Zm96.199-23.324h-8.941v-32.711h8.941c11.927,0,21.437,3.961,21.437,16.139,0,12.602-9.51,16.572-21.437,16.572"
+              />
+            </svg>
+
+            Connect ERP System
+          </h2>
+          <small>Connect directly with SAP ERP systems.</small>
+
+          <form
+            method="post"
+            action="{% url 'link_data_connect_erp' %}"
+            class="sap-form"
+          >
+            {% csrf_token %}
+            <div>
+              {{ sap_form.system_type.label_tag }} {{ sap_form.system_type }}
+            </div>
+
+            <div>
+              {{ sap_form.system_name.label_tag }} {{ sap_form.system_name }}
+            </div>
+
+            <div>
+              {{ sap_form.auth_method.label_tag }} {{ sap_form.auth_method }}
+            </div>
+
+            <div>
+              {{ sap_form.client_id.label_tag }} {{ sap_form.client_id }}
+            </div>
+
+            <div>{{ sap_form.username.label_tag }} {{ sap_form.username }}</div>
+
+            <div>{{ sap_form.password.label_tag }} {{ sap_form.password }}</div>
+
+            <!-- ========== ODATA FIELDS ========== -->
+            <div class="odata-fields">
+              <div>
+                {{ sap_form.base_url.label_tag }} {{ sap_form.base_url }}
+              </div>
+            </div>
+
+            <!-- ========== RFC FIELDS ========== -->
+            <div class="rfc-fields" style="display: none">
+              <div>{{ sap_form.ashost.label_tag }} {{ sap_form.ashost }}</div>
+              <div>{{ sap_form.sysnr.label_tag }} {{ sap_form.sysnr }}</div>
+              <div>
+                {{sap_form.language.label_tag }} {{ sap_form.language }}
+              </div>
+            </div>
+
+            <!-- ========== HANA FIELDS ========== -->
+            <div class="hana-fields" style="display: none">
+              <div>
+                {{ sap_form.hana_host.label_tag }} {{ sap_form.hana_host }}
+              </div>
+              <div>
+                {{ sap_form.hana_port.label_tag }} {{ sap_form.hana_port }}
+              </div>
+              <div>
+                {{ sap_form.hana_database.label_tag }} {{ sap_form.hana_database }}
+              </div>
+              <div>
+                {{ sap_form.ssl_mode.label_tag }} {{ sap_form.ssl_mode }}
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Connect ERP</button>
+          </form>
+        </div>
+
+        {% comment %}
+        <div class="section">
+          <h2>🌐 External APIs</h2>
+          <small>Link to REST APIs, FTP drops, or custom integrations.</small>
+
+          <form method="post" action="{% url 'link_data_connect_api' %}">
+            {% csrf_token %}
+            <div class="field">
+              <label for="api_name">Integration Name</label>
+              <input
+                type="text"
+                id="api_name"
+                name="api_name"
+                placeholder="GST API"
+              />
+            </div>
+
+            <div class="field">
+              <label for="api_url">API Endpoint</label>
+              <input
+                type="text"
+                id="api_url"
+                name="api_url"
+                placeholder="https://api.vendor.com/data"
+              />
+            </div>
+
+            <div class="field">
+              <label for="auth_type">Authentication Type</label>
+              <select id="auth_type" name="auth_type">
+                <option value="none">None</option>
+                <option value="api_key">API Key</option>
+                <option value="bearer_token">Bearer Token</option>
+                <option value="basic_auth">Basic Auth</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="auth_value">Auth Credentials / Token</label>
+              <input type="text" id="auth_value" name="auth_value" />
+            </div>
+
+            <button type="submit">Connect API</button>
+          </form>
+        </div>
+        {% endcomment %}
+        <button id="toTop" title="Go to top">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            width="24"
+            height="24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 19V5m0 0l-7 7m7-7l7 7"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <div class="linked-data-div">
+        <!-- UPLOADED FILES -->
+        {% if uploaded_files_qs %}
+        <h2>Uploaded Files</h2>
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th>File Name</th>
+              <th>Uploaded On</th>
+              <th>Data Source</th>
+              <th>View File</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for file in uploaded_files_qs %}
+            <tr>
+              <td>{{ file.file.name|slice:"8:"|default:"(No name)" }}</td>
+              <td>
+                {{ file.uploaded_at|date:"d-m-Y" }} ({{ file.uploaded_at|date:"h:i A" }})
+              </td>
+              <td>{{ file.data_source|default:"N/A" }}</td>
+              <td><a href="{{ file.file.url }}" target="_blank">View</a></td>
+              <td>
+                {% if file.status == 'pending' %}
+                <button>Pending</button>
+                {% else %} Connected {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p>No uploaded files found.</p>
+        {% endif %}
+
+        <!-- SAP LINKS -->
+        <h2 style="margin-top: 2rem">Connected ERP Systems</h2>
+        {% if sap_links_qs %}
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th>System Name</th>
+              <th>Type</th>
+              <th>Base URL / Host</th>
+              <th>Linked On</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for link in sap_links_qs %}
+            <tr>
+              <td>{{ link.system_name }}</td>
+
+              <td>
+                {% if link.system_type == 'sap_odata' %}
+                  OData API
+                {% elif link.system_type == 'sap_rfc' %}
+                  RFC/BAPI
+                {% elif link.system_type == 'sap_hana' %}
+                  HANA DB
+                {% else %}
+                  Unknown
+                {% endif %}
+              </td>
+
+              <td>
+                {% if link.base_url %}
+                  {{ link.base_url }}
+                {% elif link.ashost %}
+                  {{ link.ashost }}
+                {% elif link.hana_host %}
+                  {{ link.hana_host }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+
+              <td>
+                {{ link.connected_at|date:"d-m-Y" }}
+                ({{ link.connected_at|date:"h:i A" }})
+              </td>
+
+              <td>
+                {% if link.status == 'pending' %}
+                  <form method="post" action="{% url 'link_sap_erp_to_unified_db' link.id %}">
+                    {% csrf_token %}
+                    <button type="submit">Pending</button>
+                  </form>
+                {% else %}
+                  ✅ Connected
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+          <p>No ERP systems connected yet.</p>
+        {% endif %}
+
+      </div>
+    </main>
+
+    {% include 'base/footer.html' %}
+
+    <script>
+      const mainContainer = document.querySelector("main");
+      const toTopBtn = document.getElementById("toTop");
+
+      // Smooth scroll to top of the main container
+      toTopBtn.addEventListener("click", () => {
+        mainContainer.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      });
+
+      // Show/hide button when scrolled down
+      mainContainer.addEventListener("scroll", () => {
+        if (mainContainer.scrollTop > 400) {
+          toTopBtn.style.display = "flex";
+        } else {
+          toTopBtn.style.display = "none";
+        }
+      });
+
+      // Hide initially
+      toTopBtn.style.display = "none";
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const systemTypeSelect = document.getElementById("id_system_type");
+        const odataFields = document.querySelectorAll(".odata-fields");
+        const rfcFields = document.querySelectorAll(".rfc-fields");
+        const hanaFields = document.querySelectorAll(".hana-fields");
+
+        function toggleSAPFields(selectedType) {
+          // Hide all
+          [odataFields, rfcFields, hanaFields].forEach((section) => {
+            section.forEach((div) => (div.style.display = "none"));
+          });
+
+          // Show the selected one
+          if (selectedType === "sap_odata") {
+            odataFields.forEach((div) => (div.style.display = "block"));
+          } else if (selectedType === "sap_rfc") {
+            rfcFields.forEach((div) => (div.style.display = "block"));
+          } else if (selectedType === "sap_hana") {
+            hanaFields.forEach((div) => (div.style.display = "block"));
+          }
+        }
+
+        // Initial load
+        toggleSAPFields(systemTypeSelect.value);
+
+        // Listen for dropdown changes
+        systemTypeSelect.addEventListener("change", function () {
+          toggleSAPFields(this.value);
+        });
+      });
+    </script>
+  </body>
+</html>

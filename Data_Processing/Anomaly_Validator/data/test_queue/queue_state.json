@@ -1,0 +1,26 @@
+{
+  "pending": [
+    {
+      "anomaly_id": "TEST_SYSTEM_001",
+      "anomaly_data": {
+        "anomaly_id": "TEST_SYSTEM_001",
+        "entity_name": "Test Entity",
+        "gl_account": "6000",
+        "amount": 100000.0
+      },
+      "priority": 50,
+      "source": "detector",
+      "status": "pending",
+      "created_at": "2025-10-31T03:58:34.507805",
+      "started_at": null,
+      "completed_at": null,
+      "validation_result": null,
+      "error_message": null,
+      "retry_count": 0
+    }
+  ],
+  "processing": [],
+  "completed": [],
+  "failed": [],
+  "saved_at": "2025-10-31T03:58:34.508807"
+}

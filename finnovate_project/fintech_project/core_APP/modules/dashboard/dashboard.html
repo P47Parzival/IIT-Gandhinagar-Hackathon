@@ -1,0 +1,2685 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Dashboard | Finnovate</title>
+    <link rel="stylesheet" href="{% static 'base.css' %}" />
+    <link rel="stylesheet" href="{% static 'output.css' %}" />
+    <style>
+      main {
+        min-height: 0;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 400px 1fr;
+        padding: 1rem 1rem 0 0;
+        background: linear-gradient(
+          to right,
+          #2d6abd30,
+          #5547aa30,
+          #8a168f30,
+          #af236630
+        );
+        position: relative;
+        align-items: stretch;
+        transition: grid-template-columns 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      main.dual-response-active {
+        grid-template-columns: 70% 1fr;
+      }
+
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 40px 40px;
+        z-index: 0;
+      }
+
+      /* History Sidebar (Floating) */
+      .history-drawer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 320px;
+        height: 100vh;
+        background: white;
+        border-right: 1px solid var(--border);
+        box-shadow: var(--shadow-lg);
+        transform: translateX(-100%);
+        transition: transform var(--transition-slow) cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .history-drawer.open {
+        transform: translateX(0);
+      }
+
+      .history-header {
+        padding: 1.5rem 1.25rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .history-header h3 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--fg);
+      }
+
+      .history-close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--subtle);
+        padding: 0.25rem;
+        border-radius: 4px;
+        transition: all var(--transition-fast);
+        line-height: 1;
+      }
+
+      .history-close-btn:hover {
+        background: var(--panel-bg);
+        color: var(--fg);
+      }
+
+      .history-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+      }
+
+      .history-new-btn {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: var(--radius);
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background var(--transition-fast);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .history-new-btn:hover {
+        background: var(--accent-hover);
+      }
+
+      .history-item {
+        padding: 0.75rem 0.875rem;
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        font-size: 0.875rem;
+        color: var(--fg);
+        border: 1px solid transparent;
+        margin-bottom: 0.25rem;
+      }
+
+      .history-item:hover {
+        background: var(--panel-bg);
+        border-color: var(--border);
+      }
+
+      .history-item.active {
+        background: var(--accent-light);
+        border-color: var(--accent);
+      }
+
+      .history-item-title {
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 0.25rem;
+      }
+
+      .history-item-date {
+        font-size: 0.75rem;
+        color: var(--subtle);
+      }
+
+      /* Chat Panel */
+      .chat-panel {
+        position: relative;
+        z-index: 1;
+        margin-left: 1rem;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-md);
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 120px);
+        overflow: hidden;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* Welcome Screen */
+      .welcome-screen {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        opacity: 1;
+        transition: opacity var(--transition-slow);
+      }
+
+      .welcome-screen.hidden {
+        display: none;
+      }
+
+      .welcome-title {
+        font-size: 2.25rem;
+        font-weight: 500;
+        color: #57534e;
+        margin-bottom: 2rem;
+        text-align: center;
+        text-shadow: 0 0 1px currentColor;
+        line-height: 1.2;
+        font-family: "Flecha", Georgia, serif;
+      }
+
+      @media (max-width: 640px) {
+        .welcome-title {
+          font-size: 1.25rem;
+          margin-bottom: 1rem;
+        }
+      }
+
+      .animated-gradient {
+        background-image: linear-gradient(
+          90deg,
+          #57534d,
+          #57534d 33.33%,
+          #3d348b 40%,
+          #7678ed 45%,
+          #f7b801 50%,
+          #f18701 55%,
+          #f35b04 60%,
+          transparent 66.67%,
+          transparent
+        );
+        will-change: background-position;
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+        display: inline-block;
+        background-origin: content-box;
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+        background-size: 300% 100%;
+        animation: animateGradient 1s ease-out forwards;
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+        font-weight: 500;
+        font-style: italic;
+        letter-spacing: -0.025em;
+        background-position-x: 100%;
+        background-position-y: 0px;
+      }
+
+      @keyframes animateGradient {
+        0% {
+          background-position-x: 100%;
+        }
+        100% {
+          background-position-x: 0%;
+        }
+      }
+
+      .welcome-subtitle {
+        font-size: 1rem;
+        color: #78716c;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        line-height: 1.6;
+        font-family: "Flecha", Georgia, serif;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+      }
+
+      .welcome-prompts {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        width: 100%;
+        max-width: 900px;
+        justify-content: center;
+      }
+
+      .prompt-card {
+        /* Base layout */
+        box-sizing: border-box;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        
+        /* Pill shape - 44px height */
+        height: 44px;
+        padding: 0 20px;
+        border-radius: 9999px;
+        
+        /* Colors - exact pill design */
+        background-color: #f6f5f3;
+        border: 1px solid #e9e8e6;
+        
+        /* Typography */
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+        font-size: 16px;
+        line-height: 20px;
+        font-weight: 500;
+        letter-spacing: 0.12px;
+        color: #585858;
+        
+        /* Subtle shadow */
+        box-shadow: 0 1px 0 0 rgba(13, 13, 14, 0.03);
+        
+        /* Interaction */
+        cursor: pointer;
+        white-space: nowrap;
+        transition: box-shadow 0.16s ease, border-color 0.12s ease, transform 0.08s ease, background-color 0.16s ease;
+        
+        /* Smooth rendering */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        user-select: none;
+      }
+
+      .prompt-card:hover {
+        background-color: #f3f2f0;
+        border-color: #ddd9d5;
+        box-shadow: 0 1px 0 0 rgba(13, 13, 14, 0.03), 0 2px 4px rgba(0, 0, 0, 0.04);
+        transform: translateY(-0.5px);
+      }
+
+      .prompt-card:active {
+        transform: translateY(0.5px);
+        box-shadow: 0 1px 0 0 rgba(13, 13, 14, 0.03);
+      }
+
+      .prompt-card:focus {
+        outline: none;
+        border-color: rgba(88, 101, 242, 0.24);
+        box-shadow: 0 1px 0 0 rgba(13, 13, 14, 0.03), 0 0 0 3px rgba(88, 101, 242, 0.14);
+      }
+
+      .prompt-title {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-weight: 500;
+        color: #585858;
+        font-size: 16px;
+        line-height: 20px;
+        letter-spacing: 0.12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .prompt-icon {
+        width: 20px;
+        height: 20px;
+        flex: 0 0 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 6px;
+        opacity: 0.98;
+      }
+
+      .prompt-icon img {
+        width: 20px;
+        height: 20px;
+        display: block;
+        object-fit: contain;
+      }
+
+      @media (max-width: 640px) {
+        .welcome-prompts {
+          flex-direction: column;
+          width: 100%;
+        }
+        
+        .prompt-card {
+          width: 100%;
+          min-width: auto;
+          justify-content: flex-start;
+        }
+      }
+
+      /* Messages Area */
+      .messages-area {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        scroll-behavior: smooth;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .messages-area.hidden {
+        display: none;
+      }
+
+      /* Message Bubbles */
+      .message {
+        display: flex;
+        gap: 0.5rem;
+        animation: fadeIn var(--transition-base) ease-out;
+      }
+
+      .message.user {
+        flex-direction: row-reverse;
+      }
+
+      .message-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .message.user .message-avatar {
+        background: var(--user-msg-bg);
+        color: var(--user-msg-text);
+      }
+
+      .message.assistant .message-avatar {
+        background: var(--accent);
+        color: white;
+      }
+
+      .message-content {
+        max-width: 85%;
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius);
+        line-height: 1.5;
+        font-size: 0.875rem;
+      }
+
+      .message.user .message-content {
+        background: var(--user-msg-bg);
+        color: var(--user-msg-text);
+        border-bottom-right-radius: 4px;
+      }
+
+      .message.assistant .message-content {
+        background: var(--panel-bg);
+        color: var(--assistant-msg-text);
+        border: 1px solid var(--border);
+        border-bottom-left-radius: 4px;
+      }
+
+      /* Loading Indicator */
+      .message-loading {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        background: var(--panel-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        max-width: fit-content;
+      }
+
+      .loading-dots {
+        display: flex;
+        gap: 0.25rem;
+      }
+
+      .loading-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--subtle);
+        animation: pulse 1.4s ease-in-out infinite;
+      }
+
+      .loading-dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .loading-dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      /* Input Area */
+      .chat-input-area {
+        border-top: 1px solid var(--border);
+        padding: 0.75rem;
+        background: white;
+      }
+
+      .chat-input-wrapper {
+        display: flex;
+        gap: 0.5rem;
+        align-items: flex-end;
+      }
+
+      .history-toggle {
+        background: white;
+        color: var(--fg);
+        border: 1px solid var(--border);
+        padding: 0.5rem;
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .history-toggle:hover {
+        background: var(--panel-bg);
+        border-color: var(--accent);
+      }
+
+      .message-input {
+        flex: 1;
+        padding: 0.625rem 0.875rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        font-size: 0.875rem;
+        background: white;
+        color: var(--fg);
+        resize: none;
+        max-height: 120px;
+        font-family: inherit;
+        transition: all var(--transition-fast);
+      }
+
+      .message-input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px var(--accent-light);
+      }
+
+      .send-button {
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 0.625rem 1rem;
+        border-radius: var(--radius);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      .send-button:hover:not(:disabled) {
+        background: var(--accent-hover);
+      }
+
+      .send-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* Dual Response (RLHF) Styles */
+      .compare-mode-toggle {
+        background: white;
+        color: var(--fg);
+        border: 1px solid var(--border);
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--radius);
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        flex-shrink: 0;
+      }
+
+      .compare-mode-toggle:hover {
+        background: var(--panel-bg);
+        border-color: var(--accent);
+      }
+
+      .compare-mode-toggle.active {
+        background: var(--accent-light);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      /* Dual Response Area Inside Chat Panel */
+      .dual-response-wrapper {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: white;
+        z-index: 50;
+        opacity: 0;
+        transform: scale(0.98);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .dual-response-wrapper.active {
+        display: flex;
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      /* Response Container */
+      .dual-response-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scroll-behavior: smooth;
+      }
+      
+      /* Custom scrollbar for entire container */
+      .dual-response-container::-webkit-scrollbar {
+        width: 10px;
+      }
+      
+      .dual-response-container::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+      }
+      
+      .dual-response-container::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+      }
+      
+      .dual-response-container::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.3);
+      }
+
+      /* Simple Header - Subtle Close Button */
+      .dual-response-header {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 100;
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .dual-response-close {
+        background: white;
+        border: 1px solid var(--border);
+        width: 32px;
+        height: 32px;
+        border-radius: var(--radius);
+        cursor: pointer;
+        color: var(--subtle);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all var(--transition-fast);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .dual-response-close:hover {
+        background: var(--panel-bg);
+        color: var(--fg);
+        box-shadow: var(--shadow-md);
+      }
+
+      /* User Query Display */
+      .dual-response-query {
+        padding: 1.5rem 2rem 1.5rem 2rem;
+        border-bottom: 1px solid var(--border);
+        background: white;
+      }
+      
+      /* Timeline container */
+      .response-timeline-container {
+        padding: 2rem;
+        background: white;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        align-items: start;
+        border-bottom: 1px solid var(--border);
+      }
+      
+      /* Position left timeline higher */
+      .response-timeline-container .timeline:first-child {
+        position: relative;
+        top: -3rem; /* Move up by 3rem */
+      }
+      
+      /* Left timeline - increased spacing to match right timeline height */
+      .response-timeline-container .timeline:first-child hr {
+        height: 180px; /* Fixed height for connecting lines */
+        min-height: 180px;
+        flex-shrink: 0;
+      }
+      
+      /* Left timeline - clickable items with expand functionality */
+      .response-timeline-container .timeline:first-child .timeline-box {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        user-select: none;
+        padding-right: 2.5rem; /* Space for chevron icon */
+      }
+      
+      .response-timeline-container .timeline:first-child .timeline-box:hover {
+        background: #f0f9ff;
+        border-color: #3b82f6;
+        transform: translateX(2px);
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+      }
+      
+      .response-timeline-container .timeline:first-child .timeline-box::after {
+        content: '›';
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%) rotate(90deg);
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #94a3b8;
+        transition: transform 0.3s ease, color 0.3s ease;
+      }
+      
+      .response-timeline-container .timeline:first-child .timeline-box.expanded::after {
+        transform: translateY(-50%) rotate(-90deg);
+        color: #3b82f6;
+      }
+      
+      /* Timeline detail logs */
+      .timeline-details {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin 0.3s ease;
+        opacity: 0;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .timeline-details.expanded {
+        max-height: 500px;
+        opacity: 1;
+        margin-top: 0.75rem;
+      }
+      
+      .timeline-details-content {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-left: 3px solid #3b82f6;
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        color: #475569;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+      
+      .timeline-details-content .log-entry {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+        background: white;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
+      }
+      
+      .timeline-details-content .log-entry:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 1px 4px rgba(59, 130, 246, 0.1);
+      }
+      
+      .timeline-details-content .log-entry:last-child {
+        margin-bottom: 0;
+      }
+      
+      .timeline-details-content .log-icon {
+        flex-shrink: 0;
+        width: 16px;
+        height: 16px;
+        margin-top: 2px;
+      }
+      
+      .timeline-details-content .log-text {
+        flex: 1;
+        color: #334155;
+      }
+      
+      .timeline-details-content .log-timestamp {
+        color: #94a3b8;
+        font-size: 0.75rem;
+        font-family: 'Monaco', 'Consolas', monospace;
+        white-space: nowrap;
+      }
+      
+      .timeline-details-content .log-status {
+        display: inline-block;
+        padding: 0.125rem 0.5rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      
+      .timeline-details-content .log-status.success {
+        background: #dcfce7;
+        color: #166534;
+      }
+      
+      .timeline-details-content .log-status.processing {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+      
+      .timeline-details-content .log-status.warning {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      
+      /* Timeline animation */
+      .timeline li {
+        opacity: 0;
+        animation: fadeInUp 1.2s ease forwards;  /* Increased from 0.6s to 1.2s */
+      }
+      
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      /* Stagger animation delays - Much slower */
+      .timeline li:nth-child(1) { animation-delay: 0.3s; }
+      .timeline li:nth-child(2) { animation-delay: 0.9s; }
+      .timeline li:nth-child(3) { animation-delay: 1.5s; }
+      .timeline li:nth-child(4) { animation-delay: 2.1s; }
+      .timeline li:nth-child(5) { animation-delay: 2.7s; }
+      .timeline li:nth-child(6) { animation-delay: 3.3s; }
+      .timeline li:nth-child(7) { animation-delay: 3.9s; }
+      .timeline li:nth-child(8) { animation-delay: 4.5s; }
+      
+      /* Timeline item states */
+      .timeline-item-pending {
+        opacity: 0.3;
+      }
+      
+      .timeline-item-processing {
+        animation: pulse 2.5s ease-in-out infinite;  /* Increased from 1.5s to 2.5s */
+      }
+      
+      .timeline-item-completed {
+        opacity: 1;
+      }
+      
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+      }
+      
+      /* Highlight current step */
+      .timeline-item-processing .timeline-middle svg {
+        animation: spin 3s linear infinite;  /* Increased from 2s to 3s */
+      }
+      
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      
+      @media (max-width: 768px) {
+        .response-timeline-container {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .query-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--subtle);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.75rem;
+      }
+
+      .query-text {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        justify-content: flex-end;
+      }
+
+      .query-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--user-msg-bg);
+        color: var(--user-msg-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+      }
+
+      .query-bubble {
+        background: var(--user-msg-bg);
+        color: var(--user-msg-text);
+        padding: 0.75rem 1rem;
+        border-radius: 18px;
+        border-top-right-radius: 4px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        max-width: 80%;
+        word-wrap: break-word;
+      }
+
+      /* Individual Response Panel */
+      .response-option {
+        background: white;
+        position: relative;
+        overflow-y: auto;
+        min-width: 0;
+        min-height: 600px;
+      }
+
+      /* Custom divider styling for vertical line with OR */
+      .divider-horizontal {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        width: 60px;
+        margin: 0 !important;
+      }
+
+      .divider-horizontal::before,
+      .divider-horizontal::after {
+        content: '';
+        width: 2px;
+        background: var(--border);
+        flex: 1;
+      }
+
+      .divider-horizontal::before {
+        margin-bottom: 1rem;
+      }
+
+      .divider-horizontal::after {
+        margin-top: 1rem;
+      }
+
+      /* OR text styling */
+      .divider-horizontal {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--subtle);
+        letter-spacing: 0.05em;
+        background: white;
+        padding: 0 0.5rem;
+        z-index: 1;
+      }
+
+      .response-option-header {
+        position: sticky;
+        top: 0;
+        background: white;
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 3rem;
+        border-bottom: 1px solid var(--border);
+        z-index: 10;
+        backdrop-filter: blur(10px);
+        min-height: 80px;
+      }
+
+      .response-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--subtle);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .response-label::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        background: var(--accent);
+        border-radius: 50%;
+      }
+
+      .response-select-btn {
+        padding: 0.5rem 1rem;
+        background: var(--accent);
+        color: white;
+        border: 1px solid var(--accent);
+        border-radius: var(--radius);
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        letter-spacing: 0.3px;
+      }
+
+      .response-select-btn:hover {
+        background: var(--accent-hover);
+        border-color: var(--accent-hover);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .response-select-btn:active {
+        transform: translateY(0);
+      }
+
+      .response-select-btn.selected {
+        background: #2d8659;
+        border-color: #2d8659;
+      }
+
+      .response-select-btn.selected::before {
+        content: '✓ ';
+        font-weight: bold;
+      }
+
+      /* Response Content */
+      .response-option-content {
+        flex: 1;
+        padding: 1.75rem 2rem;
+        font-size: 0.95rem;
+        line-height: 1.7;
+        color: #2d2520;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      .response-option-content p {
+        margin: 1rem 0;
+      }
+
+      .response-option-content ul,
+      .response-option-content ol {
+        margin: 1rem 0;
+        padding-left: 1.75rem;
+      }
+
+      .response-option-content li {
+        margin: 0.6rem 0;
+      }
+
+      .response-option-content code {
+        background: rgba(125, 90, 80, 0.1);
+        padding: 0.25rem 0.5rem;
+        border-radius: 5px;
+        font-family: 'Monaco', 'Consolas', monospace;
+        font-size: 0.9em;
+        color: #7d5a50;
+        border: 1px solid rgba(125, 90, 80, 0.15);
+      }
+
+      .response-option-content pre {
+        background: rgba(125, 90, 80, 0.06);
+        border: 1px solid rgba(125, 90, 80, 0.2);
+        padding: 1.25rem;
+        border-radius: 10px;
+        overflow-x: auto;
+        margin: 1.25rem 0;
+      }
+
+      .response-option-content pre code {
+        background: none;
+        padding: 0;
+        border: none;
+      }
+
+      .response-option-content strong {
+        color: #7d5a50;
+        font-weight: 600;
+      }
+
+      .response-option-content h1,
+      .response-option-content h2,
+      .response-option-content h3 {
+        color: #7d5a50;
+        margin: 1.5rem 0 0.75rem 0;
+      }
+
+      .response-option-content table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 1rem 0;
+      }
+
+      .response-option-content th,
+      .response-option-content td {
+        border: 1px solid #e8e0d8;
+        padding: 0.75rem 1rem;
+        text-align: left;
+      }
+
+      .response-option-content th {
+        background: #f9f6f3;
+        font-weight: 600;
+        color: #7d5a50;
+      }
+
+      /* Scrollbar Styling */
+      .response-option-content::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      .response-option-content::-webkit-scrollbar-track {
+        background: rgba(125, 90, 80, 0.05);
+      }
+
+      .response-option-content::-webkit-scrollbar-thumb {
+        background: rgba(125, 90, 80, 0.25);
+        border-radius: 5px;
+      }
+
+      .response-option-content::-webkit-scrollbar-thumb:hover {
+        background: rgba(125, 90, 80, 0.4);
+      }
+
+      /* Responsive */
+      @media (max-width: 1400px) {
+        main.dual-response-active {
+          grid-template-columns: 65% 1fr;
+        }
+      }
+
+      @media (max-width: 1200px) {
+        main.dual-response-active {
+          grid-template-columns: 80% 1fr;
+        }
+      }
+
+      @media (max-width: 980px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+        
+        main.dual-response-active {
+          grid-template-columns: 1fr;
+        }
+
+        .content-area {
+          display: none;
+        }
+
+        .chat-panel {
+          margin: 1rem;
+          height: calc(100vh - 140px);
+        }
+      }
+
+      /* Markdown Styling */
+      .message-content pre {
+        background: rgba(0, 0, 0, 0.05);
+        padding: 0.75rem;
+        border-radius: 6px;
+        overflow-x: auto;
+        margin: 0.5rem 0;
+        font-size: 0.8rem;
+      }
+
+      .message-content code {
+        background: rgba(0, 0, 0, 0.08);
+        padding: 0.15rem 0.35rem;
+        border-radius: 3px;
+        font-family: "Monaco", "Consolas", monospace;
+        font-size: 0.85em;
+      }
+
+      .message-content pre code {
+        background: none;
+        padding: 0;
+      }
+
+      .message-content table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 0.5rem 0;
+        font-size: 0.85rem;
+      }
+
+      .message-content th,
+      .message-content td {
+        border: 1px solid var(--border);
+        padding: 0.4rem 0.6rem;
+        text-align: left;
+      }
+
+      .message-content th {
+        background: var(--panel-bg);
+        font-weight: 600;
+      }
+
+      .message-content a {
+        color: var(--accent);
+        text-decoration: underline;
+      }
+
+      .message-content ul,
+      .message-content ol {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+      }
+
+      .message-content li {
+        margin: 0.25rem 0;
+      }
+
+      .message-content h1,
+      .message-content h2,
+      .message-content h3,
+      .message-content h4 {
+        margin: 0.75rem 0 0.4rem 0;
+        font-weight: 600;
+      }
+
+      .message-content p {
+        margin: 0.4rem 0;
+      }
+
+      /* Content Area (Charts) */
+      .content-area {
+        position: relative;
+        z-index: 1;
+        overflow-y: auto;
+        padding-left: 1rem;
+        padding-right: 0.5rem;
+        padding-bottom: 1rem;
+        scrollbar-width: thin;
+      }
+
+      .content-row {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+      }
+
+      .box {
+        flex: 1;
+        min-width: 300px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1rem;
+        box-shadow: var(--shadow-sm);
+        transition: all var(--transition-base);
+      }
+
+      .box:hover {
+        box-shadow: var(--shadow-md);
+      }
+
+      @media (max-width: 980px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+        .content-area {
+          display: none;
+        }
+        .chat-panel {
+          margin: 1rem;
+          height: calc(100vh - 140px);
+        }
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  </head>
+
+  <body>
+    {% include 'base/navbar.html' %}
+
+    <main>
+      <div class="grid"></div>
+
+      <!-- Floating History Drawer -->
+      <aside class="history-drawer" id="historyDrawer">
+        <div class="history-header">
+          <h3>Chat History</h3>
+          <button class="history-close-btn" id="closeDrawerBtn">×</button>
+        </div>
+        <div class="history-list" id="historyList">
+          <button class="history-new-btn" id="newChatBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            New Chat
+          </button>
+        </div>
+      </aside>
+
+      <!-- Chat Panel -->
+      <section class="chat-panel">
+        <!-- Dual Response Overlay (Inside Chat Panel) -->
+        <div class="dual-response-wrapper" id="dualResponseWrapper">
+          <div class="dual-response-container">
+            <div class="dual-response-header">
+              <button class="dual-response-close" id="closeDualResponse" aria-label="Close comparison" title="Exit comparison mode">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+            
+            <!-- User Query Display -->
+            <div class="dual-response-query">
+              <div class="query-label">Your Question</div>
+              <div class="query-text">
+                <div class="query-bubble" id="dualResponseQuery">
+                  <!-- User's query will be displayed here -->
+                </div>
+                <div class="query-avatar">U</div>
+              </div>
+            </div>
+
+            <!-- Response Timeline -->
+            <div class="response-timeline-container">
+              <!-- Left Timeline: Simple vertical -->
+              <ul class="timeline timeline-vertical">
+                <li>
+                  <div class="timeline-middle">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      class="text-primary h-5 w-5">
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                        clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <div class="timeline-end">
+                    <div class="timeline-box" data-timeline-step="0">Query Received</div>
+                    <div class="timeline-details" data-timeline-details="0">
+                      <div class="timeline-details-content">
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #22c55e;">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                          </svg>
+                          <div class="log-text">
+                            <div><span class="log-status success">Success</span></div>
+                            <div>User query received and validated</div>
+                          </div>
+                          <span class="log-timestamp">0.12s</span>
+                        </div>
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #3b82f6;">
+                            <path d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM10 15a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 15z" />
+                          </svg>
+                          <div class="log-text">Query context extracted: 256 characters</div>
+                          <span class="log-timestamp">0.24s</span>
+                        </div>
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #3b82f6;">
+                            <path d="M3.75 3A1.75 1.75 0 002 4.75v3.26a3.235 3.235 0 011.75-.51h12.5c.644 0 1.245.188 1.75.51V4.75A1.75 1.75 0 0016.25 3H3.75z" />
+                          </svg>
+                          <div class="log-text">Intent classification: Financial Analysis</div>
+                          <span class="log-timestamp">0.38s</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <hr class="bg-primary" />
+                </li>
+                <li>
+                  <hr class="bg-primary" />
+                  <div class="timeline-middle">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      class="text-primary h-5 w-5">
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                        clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <div class="timeline-start">
+                    <div class="timeline-box" data-timeline-step="1">Processing AI Models</div>
+                    <div class="timeline-details" data-timeline-details="1">
+                      <div class="timeline-details-content">
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #3b82f6;">
+                            <path d="M15.98 1.804a1 1 0 00-1.96 0l-.24 1.192a1 1 0 01-.784.785l-1.192.238a1 1 0 000 1.962l1.192.238a1 1 0 01.785.785l.238 1.192a1 1 0 001.962 0l.238-1.192a1 1 0 01.785-.785l1.192-.238a1 1 0 000-1.962l-1.192-.238a1 1 0 01-.785-.785l-.238-1.192z" />
+                          </svg>
+                          <div class="log-text">
+                            <div><span class="log-status processing">Processing</span></div>
+                            <div>Initializing GPT-4o-mini model</div>
+                          </div>
+                          <span class="log-timestamp">0.52s</span>
+                        </div>
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #22c55e;">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                          </svg>
+                          <div class="log-text">Model A ready (temperature: 0.3)</div>
+                          <span class="log-timestamp">1.24s</span>
+                        </div>
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #22c55e;">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                          </svg>
+                          <div class="log-text">Model B ready (temperature: 0.7)</div>
+                          <span class="log-timestamp">1.28s</span>
+                        </div>
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #3b82f6;">
+                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z" />
+                          </svg>
+                          <div class="log-text">Context window: 4096 tokens allocated</div>
+                          <span class="log-timestamp">1.45s</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <hr class="bg-primary" />
+                </li>
+                <li>
+                  <hr class="bg-primary" />
+                  <div class="timeline-middle">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      class="text-primary h-5 w-5">
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                        clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <div class="timeline-end">
+                    <div class="timeline-box" data-timeline-step="2">Agent Analysis</div>
+                    <div class="timeline-details" data-timeline-details="2">
+                      <div class="timeline-details-content">
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #3b82f6;">
+                            <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                          </svg>
+                          <div class="log-text">
+                            <div><span class="log-status processing">Analyzing</span></div>
+                            <div>Agent 1: Financial data extraction</div>
+                          </div>
+                          <span class="log-timestamp">1.82s</span>
+                        </div>
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #3b82f6;">
+                            <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                          </svg>
+                          <div class="log-text">Agent 2: Compliance verification</div>
+                          <span class="log-timestamp">2.14s</span>
+                        </div>
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #3b82f6;">
+                            <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                          </svg>
+                          <div class="log-text">Agent 3: Risk assessment</div>
+                          <span class="log-timestamp">2.47s</span>
+                        </div>
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #22c55e;">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                          </svg>
+                          <div class="log-text">All agents synchronized</div>
+                          <span class="log-timestamp">2.89s</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <hr />
+                </li>
+                <li>
+                  <hr />
+                  <div class="timeline-middle">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      class="text-primary h-5 w-5">
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                        clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <div class="timeline-start">
+                    <div class="timeline-box" data-timeline-step="3">Responses Generated</div>
+                    <div class="timeline-details" data-timeline-details="3">
+                      <div class="timeline-details-content">
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #3b82f6;">
+                            <path d="M3.196 12.87l-.825.483a.75.75 0 000 1.294l7.25 4.25a.75.75 0 00.758 0l7.25-4.25a.75.75 0 000-1.294l-.825-.484-5.666 3.322a2.25 2.25 0 01-2.276 0L3.196 12.87z" />
+                          </svg>
+                          <div class="log-text">
+                            <div><span class="log-status processing">Generating</span></div>
+                            <div>Streaming response A (1,247 tokens)</div>
+                          </div>
+                          <span class="log-timestamp">3.15s</span>
+                        </div>
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #3b82f6;">
+                            <path d="M3.196 12.87l-.825.483a.75.75 0 000 1.294l7.25 4.25a.75.75 0 00.758 0l7.25-4.25a.75.75 0 000-1.294l-.825-.484-5.666 3.322a2.25 2.25 0 01-2.276 0L3.196 12.87z" />
+                          </svg>
+                          <div class="log-text">Streaming response B (1,189 tokens)</div>
+                          <span class="log-timestamp">3.18s</span>
+                        </div>
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #f59e0b;">
+                            <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495z" clip-rule="evenodd" />
+                          </svg>
+                          <div class="log-text">
+                            <div><span class="log-status warning">Warning</span></div>
+                            <div>Rate limit: 90% capacity</div>
+                          </div>
+                          <span class="log-timestamp">4.52s</span>
+                        </div>
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #22c55e;">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                          </svg>
+                          <div class="log-text">Both responses completed successfully</div>
+                          <span class="log-timestamp">6.74s</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <hr />
+                </li>
+                <li>
+                  <hr />
+                  <div class="timeline-middle">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      class="h-5 w-5">
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                        clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <div class="timeline-end">
+                    <div class="timeline-box" data-timeline-step="4">Choose Best Response</div>
+                    <div class="timeline-details" data-timeline-details="4">
+                      <div class="timeline-details-content">
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #3b82f6;">
+                            <path fill-rule="evenodd" d="M10 2a.75.75 0 01.75.75v5.59l4.95-4.95a.75.75 0 111.06 1.06l-4.95 4.95h5.59a.75.75 0 010 1.5h-5.59l4.95 4.95a.75.75 0 11-1.06 1.06l-4.95-4.95v5.59a.75.75 0 01-1.5 0v-5.59l-4.95 4.95a.75.75 0 01-1.06-1.06l4.95-4.95H2.75a.75.75 0 010-1.5h5.59L3.39 3.89a.75.75 0 111.06-1.06l4.95 4.95V2.75A.75.75 0 0110 2z" clip-rule="evenodd" />
+                          </svg>
+                          <div class="log-text">
+                            <div><span class="log-status success">Ready</span></div>
+                            <div>Presenting options for human feedback</div>
+                          </div>
+                          <span class="log-timestamp">6.91s</span>
+                        </div>
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #3b82f6;">
+                            <path d="M10 9a3 3 0 100-6 3 3 0 000 6zM6 8a2 2 0 11-4 0 2 2 0 014 0zM1.49 15.326a.78.78 0 01-.358-.442 3 3 0 014.308-3.516 6.484 6.484 0 00-1.905 3.959c-.023.222-.014.442.025.654a4.97 4.97 0 01-2.07-.655z" />
+                          </svg>
+                          <div class="log-text">Awaiting user selection for RLHF</div>
+                          <span class="log-timestamp">7.02s</span>
+                        </div>
+                        <div class="log-entry">
+                          <svg class="log-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #8b5cf6;">
+                            <path d="M15.98 1.804a1 1 0 00-1.96 0l-.24 1.192a1 1 0 01-.784.785l-1.192.238a1 1 0 000 1.962l1.192.238a1 1 0 01.785.785l.238 1.192a1 1 0 001.962 0l.238-1.192a1 1 0 01.785-.785l1.192-.238a1 1 0 000-1.962l-1.192-.238a1 1 0 01-.785-.785l-.238-1.192z" />
+                          </svg>
+                          <div class="log-text">Your feedback improves future responses</div>
+                          <span class="log-timestamp">7.15s</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+
+              <!-- Right Timeline: Snap icon style -->
+              <ul class="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical">
+                <li>
+                  <div class="timeline-middle">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      class="h-5 w-5">
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                        clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <div class="timeline-start mb-10 md:text-end">
+                    <time class="font-mono italic">1984</time>
+                    <div class="text-lg font-black">First Macintosh computer</div>
+                    The Apple Macintosh—later rebranded as the Macintosh 128K—is the original Apple Macintosh
+                    personal computer. It played a pivotal role in establishing desktop publishing as a general
+                    office function.
+                  </div>
+                  <hr />
+                </li>
+                <li>
+                  <hr />
+                  <div class="timeline-middle">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      class="h-5 w-5">
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                        clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <div class="timeline-end md:mb-10">
+                    <time class="font-mono italic">1998</time>
+                    <div class="text-lg font-black">iMac</div>
+                    iMac is a family of all-in-one Mac desktop computers designed and built by Apple Inc. It has
+                    been the primary part of Apple's consumer desktop offerings since its debut in August 1998.
+                  </div>
+                  <hr />
+                </li>
+                <li>
+                  <hr />
+                  <div class="timeline-middle">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      class="h-5 w-5">
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                        clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <div class="timeline-start mb-10 md:text-end">
+                    <time class="font-mono italic">2001</time>
+                    <div class="text-lg font-black">iPod</div>
+                    The iPod is a discontinued series of portable media players and multi-purpose mobile devices
+                    designed and marketed by Apple Inc. The first version was released on October 23, 2001.
+                  </div>
+                  <hr />
+                </li>
+                <li>
+                  <hr />
+                  <div class="timeline-middle">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      class="h-5 w-5">
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                        clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <div class="timeline-end md:mb-10">
+                    <time class="font-mono italic">2007</time>
+                    <div class="text-lg font-black">iPhone</div>
+                    iPhone is a line of smartphones produced by Apple Inc. that use Apple's own iOS mobile
+                    operating system. The first-generation iPhone was announced by then-Apple CEO Steve Jobs on
+                    January 9, 2007.
+                  </div>
+                  <hr />
+                </li>
+                <li>
+                  <hr />
+                  <div class="timeline-middle">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      class="h-5 w-5">
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                        clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <div class="timeline-start mb-10 md:text-end">
+                    <time class="font-mono italic">2015</time>
+                    <div class="text-lg font-black">Apple Watch</div>
+                    The Apple Watch is a line of smartwatches produced by Apple Inc. It incorporates fitness
+                    tracking, health-oriented capabilities, and wireless telecommunication.
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <div class="flex w-full" style="min-height: 600px;">
+              <div class="response-option grow flex flex-col">
+                <div class="response-option-header">
+                  <span class="response-label">Response A</span>
+                  <button class="response-select-btn" data-response="a">Choose This</button>
+                </div>
+                <div class="response-option-content" id="responseContentA">
+                  <!-- Response A will be loaded here -->
+                </div>
+              </div>
+              <div class="divider divider-horizontal">OR</div>
+              <div class="response-option grow flex flex-col">
+                <div class="response-option-header">
+                  <span class="response-label">Response B</span>
+                  <button class="response-select-btn" data-response="b">Choose This</button>
+                </div>
+                <div class="response-option-content" id="responseContentB">
+                  <!-- Response B will be loaded here -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Welcome Screen -->
+        <div class="welcome-screen" id="welcomeScreen">
+          <h2 class="welcome-title">Get <span class="animated-gradient">help</span> with Nirva!</h2>
+          <p class="welcome-subtitle">
+            I'm your AI assistant with CPA-level accounting expertise. Ask me anything!
+          </p>
+          <div class="welcome-prompts">
+            <button 
+              class="prompt-card" 
+              data-prompt="Generate trial balance from my GL data"
+              aria-label="Generate trial balance from GL data"
+              type="button">
+              <span class="prompt-title">Generate my trial balance</span>
+              <span class="prompt-icon" aria-hidden="true">
+                <img 
+                  src="https://cdn.jsdelivr.net/gh/ComposioHQ/open-logos@master/slack.svg" 
+                  alt="Slack"
+                  width="20"
+                  height="20" />
+              </span>
+            </button>
+            <button 
+              class="prompt-card" 
+              data-prompt="Analyze balance sheet variances greater than 5%"
+              aria-label="Analyze balance sheet variances"
+              type="button">
+              <span class="prompt-title">Analyze my variance report</span>
+              <span class="prompt-icon" aria-hidden="true">
+                <img 
+                  src="https://logos.composio.dev/api/linear" 
+                  alt="Linear"
+                  width="20"
+                  height="20" />
+              </span>
+            </button>
+            <button 
+              class="prompt-card" 
+              data-prompt="Show me hygiene score for uploaded documents"
+              aria-label="Check document hygiene score"
+              type="button">
+              <span class="prompt-title">Check my document hygiene</span>
+              <span class="prompt-icon" aria-hidden="true">
+                <img 
+                  src="https://logos.composio.dev/api/github" 
+                  alt="GitHub"
+                  width="20"
+                  height="20" />
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div class="messages-area hidden" id="messagesArea">
+          <!-- Messages will be added here -->
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-input-area">
+
+          <div class="chat-input-wrapper">
+            <button class="history-toggle" id="historyToggle" title="Chat History">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-9-9" stroke-dasharray="3 3" />
+                <path d="M12 7v5l3 3" />
+              </svg>
+            </button>
+            <button class="compare-mode-toggle" id="compareModeToggle" title="Enable dual response comparison for RLHF">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"/>
+                <rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/>
+              </svg>
+            </button>
+            <textarea 
+              class="message-input" 
+              id="messageInput" 
+              placeholder="Ask me anything..."
+              rows="1"
+            ></textarea>
+            <button class="send-button" id="sendButton">Send</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Analytics/Charts Area -->
+      <section class="content-area">
+        <div class="content-row">
+          <!-- GL Variance Chart -->
+          <div class="box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <strong style="font-size: 14px; color: #222">GL Variance — Monthly</strong>
+              <small style="opacity: 0.7; color: #555">Net amount & anomaly flags</small>
+            </div>
+            <div style="height: 300px; position: relative">
+              <canvas id="chart-gl-variance"></canvas>
+            </div>
+          </div>
+
+          <!-- Top Account Variances -->
+          <div class="box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <strong style="font-size: 14px; color: #222">Top Account Variances</strong>
+              <small style="opacity: 0.7; color: #555">Sorted by |variance|</small>
+            </div>
+            <div style="height: 300px; position: relative">
+              <canvas id="chart-account-bars"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Assets vs Liabilities -->
+        <div class="box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong style="font-size: 14px; color: #222">Assets vs Liabilities — Quarterly</strong>
+            <small style="opacity: 0.7; color: #555">Stacked view + net variance</small>
+          </div>
+          <div style="height: 300px; position: relative">
+            <canvas id="chart-assets-liab"></canvas>
+          </div>
+        </div>
+
+        <!-- Balance Sheet Mix -->
+        <div class="content-row" style="margin-top: 1rem;">
+          <div class="box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <strong style="font-size: 14px; color: #222">Balance Sheet Mix</strong>
+              <small style="opacity: 0.7; color: #555">Assets vs Liabilities (flags)</small>
+            </div>
+            <div style="height: 240px; position: relative">
+              <canvas id="chart-balance-doughnut"></canvas>
+            </div>
+            <div id="liquidity-note" style="margin-top: 8px; font-size: 13px; color: #444"></div>
+          </div>
+          <div class="box"></div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+          // Chart 1: GL Variance
+          new Chart(document.getElementById("chart-gl-variance"), {
+            type: "line",
+            data: {
+              labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"],
+              datasets: [
+                {
+                  label: "Net Amount (₹k)",
+                  data: [120, 150, 140, 300, 130, 135, 128, 900, 140, 150],
+                  borderWidth: 2,
+                  borderColor: "#8a168f",
+                  backgroundColor: "rgba(138,22,143,0.08)",
+                  pointRadius: 4,
+                  pointBackgroundColor: (ctx) => {
+                    const v = ctx.dataset.data[ctx.dataIndex];
+                    return v > 400 ? "#d9376e" : v >= 300 ? "#ffcf33" : "#2d6abd";
+                  },
+                  tension: 0.3,
+                  fill: true,
+                },
+                {
+                  label: "Rolling Avg",
+                  data: [120, 135, 136, 177, 187, 166, 150, 318, 220, 195],
+                  borderDash: [5, 5],
+                  borderColor: "#5547aa",
+                  pointRadius: 0,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { labels: { color: "#333" } } },
+              scales: {
+                x: { ticks: { color: "#333" }, grid: { color: "rgba(0,0,0,0.05)" } },
+                y: { ticks: { color: "#333" }, grid: { color: "rgba(0,0,0,0.04)" } },
+              },
+            },
+          });
+
+          // Chart 2: Account Variances
+          const labels2 = ["1000 - Cash", "2100 - Payables", "3100 - Revenue", "4200 - Accruals", "5100 - Expense", "6100 - Suspense"];
+          const values2 = [5.2, -12.4, 9.1, -3.0, 2.3, -45.8];
+          const colors2 = values2.map((v) => Math.abs(v) > 20 ? "#d9376e" : Math.abs(v) > 8 ? "#ffcf33" : "#2d6abd");
+          new Chart(document.getElementById("chart-account-bars"), {
+            type: "bar",
+            data: {
+              labels: labels2,
+              datasets: [{ label: "Variance %", data: values2, backgroundColor: colors2 }],
+            },
+            options: {
+              indexAxis: "y",
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                x: { ticks: { color: "#333" }, grid: { color: "rgba(0,0,0,0.05)" } },
+                y: { ticks: { color: "#333" }, grid: { display: false } },
+              },
+            },
+          });
+
+          // Chart 3: Balance Sheet Mix
+          const data3 = [55, 30, 10, 5];
+          const labels3 = ["Current Assets", "Non-current Assets", "Liabilities", "Equity"];
+          const colors3 = ["#2d6abd", "#5547aa", "#d9376e", "#ffcf33"];
+          new Chart(document.getElementById("chart-balance-doughnut"), {
+            type: "doughnut",
+            data: {
+              labels: labels3,
+              datasets: [{ data: data3, backgroundColor: colors3 }],
+            },
+            options: { plugins: { legend: { labels: { color: "#333" } } } },
+          });
+          const currRatio = (data3[0] / data3[2]).toFixed(2);
+          document.getElementById("liquidity-note").textContent = `Current ratio ≈ ${currRatio} — ${currRatio < 1.2 ? "⚠️ Low liquidity" : "OK"}`;
+
+          // Chart 4: Assets vs Liabilities
+          const labels4 = ["Q1", "Q2", "Q3", "Q4"];
+          const assets = [3200, 3300, 3100, 4000];
+          const liabilities = [2100, 2200, 2050, 2600];
+          const net = assets.map((a, i) => a - liabilities[i]);
+          new Chart(document.getElementById("chart-assets-liab"), {
+            type: "bar",
+            data: {
+              labels: labels4,
+              datasets: [
+                { label: "Non-current Assets", data: [1800, 1850, 1750, 2000], stack: "a", backgroundColor: "#2d6abd" },
+                { label: "Current Assets", data: [1400, 1450, 1350, 2000], stack: "a", backgroundColor: "#8a168f66" },
+                { label: "Liabilities", data: liabilities, stack: "b", backgroundColor: "#d9376e" },
+                { label: "Net", type: "line", data: net, borderColor: "#ffcf33", backgroundColor: "#ffcf3355", yAxisID: "y", tension: 0.3 },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { labels: { color: "#333" } } },
+              scales: {
+                x: { ticks: { color: "#333" }, stacked: true, grid: { color: "rgba(0,0,0,0.05)" } },
+                y: { ticks: { color: "#333" }, stacked: false, grid: { color: "rgba(0,0,0,0.05)" } },
+              },
+            },
+          });
+        </script>
+      </section>
+    </main>
+
+    {% include 'base/footer.html' %}
+
+    <script>
+      // State
+      const chatbotBridgeEnabled = {{ chatbot_bridge_enabled|yesno:"true,false" }};
+      let conversationId = null;
+      let agentConversationId = null;
+      let messageHistory = [];
+      let isLoading = false;
+      let compareMode = false;
+
+      // Elements
+      const historyDrawer = document.getElementById('historyDrawer');
+      const historyToggle = document.getElementById('historyToggle');
+      const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+      const newChatBtn = document.getElementById('newChatBtn');
+      const historyList = document.getElementById('historyList');
+      const welcomeScreen = document.getElementById('welcomeScreen');
+      const messagesArea = document.getElementById('messagesArea');
+      const messageInput = document.getElementById('messageInput');
+      const sendButton = document.getElementById('sendButton');
+      const compareModeToggle = document.getElementById('compareModeToggle');
+      const dualResponseWrapper = document.getElementById('dualResponseWrapper');
+      const closeDualResponse = document.getElementById('closeDualResponse');
+      const responseContentA = document.getElementById('responseContentA');
+      const responseContentB = document.getElementById('responseContentB');
+
+      // Auto-resize textarea
+      messageInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+      });
+
+      // History drawer controls
+      historyToggle.addEventListener('click', () => {
+        historyDrawer.classList.add('open');
+      });
+
+      closeDrawerBtn.addEventListener('click', () => {
+        historyDrawer.classList.remove('open');
+      });
+
+      newChatBtn.addEventListener('click', () => {
+        startNewChat();
+        historyDrawer.classList.remove('open');
+      });
+
+      // Prompt card clicks
+      document.querySelectorAll('.prompt-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const prompt = card.getAttribute('data-prompt');
+          messageInput.value = prompt;
+          sendMessage();
+        });
+      });
+
+      // Compare mode toggle
+      compareModeToggle.addEventListener('click', () => {
+        compareMode = !compareMode;
+        compareModeToggle.classList.toggle('active');
+      });
+
+      // Close dual response panel
+      closeDualResponse.addEventListener('click', () => {
+        dualResponseWrapper.classList.remove('active');
+        document.querySelector('main').classList.remove('dual-response-active');
+      });
+
+      // Close on escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && dualResponseWrapper.classList.contains('active')) {
+          dualResponseWrapper.classList.remove('active');
+          document.querySelector('main').classList.remove('dual-response-active');
+        }
+      });
+
+      // Response selection
+      document.querySelectorAll('.response-select-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const selectedResponse = e.target.getAttribute('data-response');
+          
+          // Mark as selected
+          document.querySelectorAll('.response-select-btn').forEach(b => b.classList.remove('selected'));
+          e.target.classList.add('selected');
+          
+          // Get the selected content
+          const selectedContent = selectedResponse === 'a' 
+            ? responseContentA.textContent 
+            : responseContentB.textContent;
+          
+          // Add to message history
+          messageHistory.push({ role: 'assistant', content: selectedContent });
+          
+          // Show feedback
+          alert(`✅ Response ${selectedResponse.toUpperCase()} selected!\n\nThank you for your feedback. This helps improve the AI model.`);
+          
+          // Hide dual response panel
+          setTimeout(() => {
+            dualResponseWrapper.classList.remove('active');
+            document.querySelector('main').classList.remove('dual-response-active');
+          }, 500);
+        });
+      });
+
+      // Send message
+      sendButton.addEventListener('click', sendMessage);
+      messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+
+      function startNewChat() {
+        conversationId = null;
+        agentConversationId = null;
+        messageHistory = [];
+        messagesArea.innerHTML = '';
+        messagesArea.classList.add('hidden');
+        welcomeScreen.classList.remove('hidden');
+        messageInput.value = '';
+        loadConversations();
+      }
+
+      function showMessages() {
+        welcomeScreen.classList.add('hidden');
+        messagesArea.classList.remove('hidden');
+      }
+
+      function addMessage(role, content) {
+        showMessages();
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${role}`;
+        
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        avatar.textContent = role === 'user' ? 'U' : 'A';
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        
+        if (role === 'assistant') {
+          contentDiv.innerHTML = renderMarkdown(content);
+        } else {
+          contentDiv.textContent = content;
+        }
+        
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(contentDiv);
+        messagesArea.appendChild(messageDiv);
+        
+        scrollToBottom();
+        
+        return contentDiv;
+      }
+
+      function addLoadingIndicator() {
+        showMessages();
+        
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'message assistant';
+        loadingDiv.id = 'loadingIndicator';
+        
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        avatar.textContent = 'A';
+        
+        const loadingContent = document.createElement('div');
+        loadingContent.className = 'message-loading';
+        loadingContent.innerHTML = `
+          <div class="loading-dots">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+          </div>
+        `;
+        
+        loadingDiv.appendChild(avatar);
+        loadingDiv.appendChild(loadingContent);
+        messagesArea.appendChild(loadingDiv);
+        
+        scrollToBottom();
+      }
+
+      function removeLoadingIndicator() {
+        const loading = document.getElementById('loadingIndicator');
+        if (loading) loading.remove();
+      }
+
+      function scrollToBottom() {
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+      }
+
+      function renderMarkdown(text) {
+        if (!text) return '';
+        return marked.parse(text.trim(), {
+          breaks: true,
+          gfm: true,
+        });
+      }
+
+      async function sendMessage() {
+        const message = messageInput.value.trim();
+        if (!message || isLoading) return;
+
+        addMessage('user', message);
+        messageHistory.push({ role: 'user', content: message });
+
+        messageInput.value = '';
+        messageInput.style.height = 'auto';
+
+        // Check if compare mode is enabled
+        if (compareMode) {
+          // Generate two responses for comparison
+          await generateDualResponses(message);
+          compareMode = false;
+          compareModeToggle.classList.remove('active');
+        } else if (chatbotBridgeEnabled) {
+          await generateAgentResponse();
+        } else {
+          // Standard single response
+          await generateSingleResponse();
+        }
+      }
+
+      async function generateSingleResponse() {
+        addLoadingIndicator();
+        isLoading = true;
+        sendButton.disabled = true;
+
+        try {
+          const payload = {
+            messages: messageHistory,
+            conversationId: conversationId,
+          };
+
+          const response = await fetch('/dashboard/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          const respConvId = response.headers.get('X-Conversation-Id');
+          if (respConvId && !conversationId) {
+            conversationId = respConvId;
+            loadConversations();
+          }
+
+          if (!response.ok || !response.body) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          removeLoadingIndicator();
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let fullContent = '';
+          
+          const contentDiv = addMessage('assistant', '');
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value, { stream: true });
+            fullContent += chunk;
+            contentDiv.innerHTML = renderMarkdown(fullContent);
+            scrollToBottom();
+          }
+
+          if (fullContent.trim()) {
+            messageHistory.push({ role: 'assistant', content: fullContent });
+          }
+
+        } catch (error) {
+          console.error('Error:', error);
+          removeLoadingIndicator();
+          addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+        } finally {
+          isLoading = false;
+          sendButton.disabled = false;
+        }
+      }
+
+      async function generateAgentResponse() {
+        addLoadingIndicator();
+        isLoading = true;
+        sendButton.disabled = true;
+
+        try {
+          const payload = {
+            messages: messageHistory,
+            conversationId: conversationId,
+            agentConversationId,
+            mode: 'agentic'
+          };
+
+          const response = await fetch('/dashboard/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || `Agent service error ${response.status}`);
+          }
+
+          const respConvId = response.headers.get('X-Conversation-Id');
+          if (respConvId) {
+            agentConversationId = respConvId;
+          }
+
+          if (!response.body) {
+            throw new Error('Agent service returned an empty response');
+          }
+
+          removeLoadingIndicator();
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let fullContent = '';
+
+          const contentDiv = addMessage('assistant', '');
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            fullContent += chunk;
+            contentDiv.innerHTML = renderMarkdown(fullContent);
+            scrollToBottom();
+          }
+
+          if (fullContent.trim()) {
+            messageHistory.push({ role: 'assistant', content: fullContent });
+          }
+
+        } catch (error) {
+          console.error('Agent mode error:', error);
+          removeLoadingIndicator();
+          addMessage('assistant', 'Sorry, the agentic chatbot is unavailable right now. Please try again later.');
+        } finally {
+          isLoading = false;
+          sendButton.disabled = false;
+        }
+      }
+
+      // ==================== TIMELINE ANIMATION FUNCTIONS ====================
+      
+      const timelineSteps = {
+        left: [
+          { id: 'query-received', title: 'Query Received', icon: 'check' },
+          { id: 'processing-ai', title: 'Processing AI Models', icon: 'check' },
+          { id: 'agent-analysis', title: 'Agent Analysis', icon: 'check' },
+          { id: 'responses-generated', title: 'Responses Generated', icon: 'check' },
+          { id: 'choose-response', title: 'Choose Best Response', icon: 'check' }
+        ],
+        right: [
+          { id: 'step-1', year: '1984', title: 'First Macintosh computer', desc: 'Pipeline initialization...' },
+          { id: 'step-2', year: '1998', title: 'iMac', desc: 'Agent coordination...' },
+          { id: 'step-3', year: '2001', title: 'iPod', desc: 'Data processing...' },
+          { id: 'step-4', year: '2007', title: 'iPhone', desc: 'Model inference...' },
+          { id: 'step-5', year: '2015', title: 'Apple Watch', desc: 'Response generation...' }
+        ]
+      };
+      
+      function initializeTimeline() {
+        // Get both timeline containers
+        const leftTimeline = document.querySelector('.response-timeline-container .timeline:first-child');
+        const rightTimeline = document.querySelector('.response-timeline-container .timeline:last-child');
+        
+        // Hide all items initially
+        if (leftTimeline) {
+          leftTimeline.querySelectorAll('li').forEach(li => {
+            li.style.opacity = '0';
+            li.classList.add('timeline-item-pending');
+          });
+        }
+        
+        if (rightTimeline) {
+          rightTimeline.querySelectorAll('li').forEach(li => {
+            li.style.opacity = '0';
+            li.classList.add('timeline-item-pending');
+          });
+        }
+      }
+      
+      function animateTimelineStep(timeline, stepIndex, state = 'processing') {
+        const timelineEl = document.querySelector(`.response-timeline-container .timeline:${timeline === 'left' ? 'first' : 'last'}-child`);
+        if (!timelineEl) return;
+        
+        const items = timelineEl.querySelectorAll('li');
+        const item = items[stepIndex];
+        
+        if (!item) return;
+        
+        // Remove all state classes
+        item.classList.remove('timeline-item-pending', 'timeline-item-processing', 'timeline-item-completed');
+        
+        // Add new state
+        item.classList.add(`timeline-item-${state}`);
+        
+        // Animate appearance
+        item.style.opacity = '1';
+        item.style.animation = 'fadeInUp 0.6s ease forwards';
+        
+        // If completed, mark checkmark as primary color
+        if (state === 'completed') {
+          const svg = item.querySelector('.timeline-middle svg');
+          if (svg) {
+            svg.classList.add('text-primary');
+          }
+          const hr = item.querySelectorAll('hr');
+          hr.forEach(line => line.classList.add('bg-primary'));
+        }
+      }
+      
+      async function runTimelineAnimation() {
+        // Initialize
+        initializeTimeline();
+        
+        // Animate left timeline (quick highlights) - SLOWER
+        for (let i = 0; i < timelineSteps.left.length; i++) {
+          await sleep(1200);  // Increased from 400 to 1200 (3x slower)
+          animateTimelineStep('left', i, 'processing');
+          await sleep(2400);  // Increased from 800 to 2400 (3x slower)
+          animateTimelineStep('left', i, 'completed');
+        }
+        
+        // Animate right timeline (detailed steps) in parallel with left - SLOWER
+        setTimeout(async () => {
+          for (let i = 0; i < timelineSteps.right.length; i++) {
+            await sleep(1800);  // Increased from 600 to 1800 (3x slower)
+            animateTimelineStep('right', i, 'processing');
+            await sleep(3000);  // Increased from 1000 to 3000 (3x slower)
+            animateTimelineStep('right', i, 'completed');
+          }
+        }, 500);  // Increased offset from 200 to 500
+      }
+      
+      function updateTimelineStep(timeline, stepIndex, title, description) {
+        const timelineEl = document.querySelector(`.response-timeline-container .timeline:${timeline === 'left' ? 'first' : 'last'}-child`);
+        if (!timelineEl) return;
+        
+        const items = timelineEl.querySelectorAll('li');
+        const item = items[stepIndex];
+        
+        if (!item) return;
+        
+        // Update title
+        const titleEl = item.querySelector('.timeline-box, .text-lg');
+        if (titleEl) titleEl.textContent = title;
+        
+        // Update description (for right timeline)
+        if (description && timeline === 'right') {
+          const descEl = item.querySelector('div:not(.text-lg):not(.timeline-middle)');
+          if (descEl) {
+            const lastPara = descEl.lastElementChild;
+            if (lastPara) lastPara.textContent = description;
+          }
+        }
+      }
+      
+      function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+      
+      // ==================== TIMELINE EXPAND/COLLAPSE FUNCTIONALITY ====================
+      
+      function initializeTimelineExpand() {
+        // Get all timeline boxes in the left timeline
+        const timelineBoxes = document.querySelectorAll('.response-timeline-container .timeline:first-child .timeline-box');
+        
+        timelineBoxes.forEach((box, index) => {
+          box.addEventListener('click', function(e) {
+            e.stopPropagation();
+            
+            // Toggle expanded class on the box
+            box.classList.toggle('expanded');
+            
+            // Find corresponding details section
+            const details = document.querySelector(`[data-timeline-details="${index}"]`);
+            if (details) {
+              details.classList.toggle('expanded');
+            }
+            
+            // Optional: Close other expanded items (uncomment if you want accordion behavior)
+            // timelineBoxes.forEach((otherBox, otherIndex) => {
+            //   if (otherIndex !== index && otherBox.classList.contains('expanded')) {
+            //     otherBox.classList.remove('expanded');
+            //     const otherDetails = document.querySelector(`[data-timeline-details="${otherIndex}"]`);
+            //     if (otherDetails) otherDetails.classList.remove('expanded');
+            //   }
+            // });
+          });
+          
+          // Add keyboard accessibility
+          box.setAttribute('role', 'button');
+          box.setAttribute('tabindex', '0');
+          box.setAttribute('aria-expanded', 'false');
+          
+          box.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              box.click();
+              
+              // Update aria-expanded
+              const isExpanded = box.classList.contains('expanded');
+              box.setAttribute('aria-expanded', isExpanded.toString());
+            }
+          });
+        });
+      }
+      
+      // Initialize expand functionality when the dual response view is shown
+      document.addEventListener('DOMContentLoaded', function() {
+        // Small delay to ensure timeline is rendered
+        setTimeout(initializeTimelineExpand, 100);
+      });
+      
+      // ==================== END TIMELINE ANIMATION FUNCTIONS ====================
+
+      async function generateDualResponses(userMessage) {
+        addLoadingIndicator();
+        isLoading = true;
+        sendButton.disabled = true;
+        
+        // Start timeline animation when dual response starts
+        runTimelineAnimation();
+
+        try {
+          // Generate Response A
+          const payloadA = {
+            messages: messageHistory,
+            conversationId: conversationId,
+          };
+
+          const responseA = await fetch('/dashboard/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payloadA),
+          });
+
+          const respConvId = responseA.headers.get('X-Conversation-Id');
+          if (respConvId && !conversationId) {
+            conversationId = respConvId;
+            loadConversations();
+          }
+
+          let contentA = '';
+          if (responseA.ok && responseA.body) {
+            const readerA = responseA.body.getReader();
+            const decoder = new TextDecoder();
+
+            while (true) {
+              const { done, value } = await readerA.read();
+              if (done) break;
+              contentA += decoder.decode(value, { stream: true });
+            }
+          } else {
+            throw new Error(`Response A failed with status: ${responseA.status}`);
+          }
+
+          // Generate Response B (with slight variation by re-querying)
+          const payloadB = {
+            messages: messageHistory,
+            conversationId: conversationId,
+          };
+
+          const responseB = await fetch('/dashboard/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payloadB),
+          });
+
+          let contentB = '';
+          if (responseB.ok && responseB.body) {
+            const readerB = responseB.body.getReader();
+            const decoder = new TextDecoder();
+
+            while (true) {
+              const { done, value } = await readerB.read();
+              if (done) break;
+              contentB += decoder.decode(value, { stream: true });
+            }
+          } else {
+            throw new Error(`Response B failed with status: ${responseB.status}`);
+          }
+
+          removeLoadingIndicator();
+
+          // Display dual responses
+          responseContentA.innerHTML = renderMarkdown(contentA);
+          responseContentB.innerHTML = renderMarkdown(contentB);
+          
+          // Set the user's query at the top
+          const dualResponseQuery = document.getElementById('dualResponseQuery');
+          dualResponseQuery.textContent = userMessage;
+          
+          dualResponseWrapper.classList.add('active');
+          document.querySelector('main').classList.add('dual-response-active');
+
+          // Remove selected state from buttons
+          document.querySelectorAll('.response-select-btn').forEach(b => b.classList.remove('selected'));
+
+        } catch (error) {
+          console.error('Error generating dual responses:', error);
+          removeLoadingIndicator();
+          addMessage('assistant', 'Sorry, I encountered an error generating dual responses. Please try again.');
+        } finally {
+          isLoading = false;
+          sendButton.disabled = false;
+        }
+      }
+
+      async function loadConversations() {
+        try {
+          const response = await fetch('/dashboard/api/conversations');
+          if (response.ok) {
+            const data = await response.json();
+            renderConversations(data.conversations || []);
+          }
+        } catch (error) {
+          console.error('Error loading conversations:', error);
+        }
+      }
+
+      function renderConversations(conversations) {
+        const newChatButton = historyList.querySelector('.history-new-btn');
+        historyList.innerHTML = '';
+        historyList.appendChild(newChatButton);
+        
+        conversations.forEach(conv => {
+          const item = document.createElement('div');
+          item.className = 'conversation-item';
+          if (conv.id === conversationId) {
+            item.classList.add('active');
+          }
+          
+          const title = document.createElement('div');
+          title.className = 'history-item-title';
+          title.textContent = conv.title || 'New conversation';
+          
+          const date = document.createElement('div');
+          date.className = 'history-item-date';
+          date.textContent = formatDate(conv.updated_at);
+          
+          item.appendChild(title);
+          item.appendChild(date);
+          
+          item.addEventListener('click', () => {
+            loadConversation(conv.id);
+            historyDrawer.classList.remove('open');
+          });
+          
+          historyList.appendChild(item);
+        });
+      }
+
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        if (diffDays < 7) return `${diffDays}d ago`;
+        return date.toLocaleDateString();
+      }
+
+      async function loadConversation(convId) {
+        conversationId = convId;
+        messageHistory = [];
+        messagesArea.innerHTML = '';
+        messagesArea.classList.add('hidden');
+        welcomeScreen.classList.remove('hidden');
+
+        try {
+          const response = await fetch(`/dashboard/api/conversations/${convId}/messages`);
+          if (response.ok) {
+            const data = await response.json();
+            
+            (data.messages || []).forEach(msg => {
+              addMessage(msg.role, msg.content);
+              messageHistory.push({ role: msg.role, content: msg.content });
+            });
+
+            loadConversations();
+          }
+        } catch (error) {
+          console.error('Error loading conversation:', error);
+        }
+      }
+
+      loadConversations();
+    </script>
+  </body>
+</html>

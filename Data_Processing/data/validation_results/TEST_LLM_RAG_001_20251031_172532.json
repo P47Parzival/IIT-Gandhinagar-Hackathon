@@ -1,0 +1,180 @@
+{
+  "anomaly_id": "TEST_LLM_RAG_001",
+  "anomaly_data": {
+    "anomaly_id": "TEST_LLM_RAG_001",
+    "entity_id": "AGY_69500",
+    "entity_name": "OKLAHOMA TAX COMMISSION",
+    "period": "2025-10",
+    "gl_account": "488184",
+    "gl_name": "Intra Xfer frm Special Account",
+    "amount": 1464208399.32,
+    "reconstruction_error": 0.219,
+    "anomaly_score": 35.9
+  },
+  "validation_timestamp": "2025-10-31T17:22:59.571087",
+  "agent_results": {
+    "document": {
+      "agent_name": "DocumentAgent",
+      "agent_type": "document",
+      "status": "completed",
+      "result": {
+        "documents_found": 0,
+        "parsed_documents": [],
+        "relevance_assessments": [],
+        "authenticity_assessment": {
+          "overall_authenticity": "NO_DOCUMENTS",
+          "recommendation": "RED_FLAG"
+        }
+      },
+      "reasoning": "No supporting documents found for this GL account",
+      "confidence": 0.0,
+      "processing_time": 0.0,
+      "timestamp": "2025-10-31T17:22:59.571087",
+      "metadata": {
+        "execution_count": 1,
+        "config": {
+          "supported_formats": [
+            "pdf",
+            "xlsx",
+            "xls",
+            "csv",
+            "png",
+            "jpg",
+            "jpeg",
+            "docx"
+          ],
+          "max_file_size_mb": 50,
+          "ocr_enabled": true,
+          "ocr_language": "eng",
+          "extract_tables": true
+        }
+      },
+      "errors": []
+    },
+    "research": {
+      "agent_name": "ResearchAgent",
+      "agent_type": "research",
+      "status": "completed",
+      "result": {
+        "sources_searched": [
+          "news",
+          "regulatory"
+        ],
+        "total_articles": 20,
+        "news_count": 20,
+        "company_count": 0,
+        "regulatory_count": 0,
+        "llm_summary_length": 11163,
+        "rag_context": "**Relevant Information from Web Research:**\n\n[Source: LLM Summary of 20 sources: http://www.news9.com/story/69038eed16a1600c9c6e2ef3/oklahoma-ag-dismisses-tribal-hunting-case, https://www.wlfi.com/news/downtown-indianapolis-tops-list-for-potential-new-casino-site-study-finds/article_8a757ad6-1146-5883-8ca7-736b7d514b73.html, https://www.wthitv.com/news/downtown-indianapolis-tops-list-for-potential-new-casino-site-study-finds/article_9e30f649-d73d-427e-8e0d-2af70cb08794.html, https://www.mcalesternews.com/opinion/grego-interim-studies-underway/article_0a8bb440-be18-492d-9e5f-608b3c835fe4.html, https://www.yahoo.com/news/articles/whats-stake-2025-detroit-city-063116171.html (and 15 more)]\n**Comprehensive Summary for Anomaly Investigation: OKLAHOMA TAX COMMISSION - Intra Xfer frm Special Account ($1,464,208,399) - October 2025**\n\nThis summary compiles web research content from October 2025, focusing on events and legislative developments that could provide context for an unusual transaction of $1,464,208,399 from a Special Account by the OKLAHOMA TAX COMMISSION during the period.\n\n---\n\n**1. Oklahoma State Financial and Legislative Developments (Most Relevant)**\n\n*   **New Laws Effective November 1, 2025:**\n    *   **Key Detail:** The State of Oklahoma is implementing \"5 big changes\" in its laws, which are scheduled to take effect on November 1, 2025.\n    *   **Context:** While the specific details of these new laws are not provided in the available content, the title strongly suggests significant legislative changes that could have substantial financial implications for the state.\n\n\n**Note:** The above information was retrieved from 1 sources and is ranked by relevance to the query.",
+        "rag_chunks_retrieved": 5,
+        "web_validation": "ANALYSIS_ERROR",
+        "explains_anomaly": false,
+        "external_events": [],
+        "supporting_evidence": []
+      },
+      "reasoning": "Searched 2 sources, found 20 articles. No external explanation found in web research.",
+      "confidence": 0.3,
+      "processing_time": 144.10776615142822,
+      "timestamp": "2025-10-31T17:25:23.678853",
+      "metadata": {
+        "execution_count": 1,
+        "config": {
+          "enable_news": true,
+          "enable_company": true,
+          "enable_regulatory": true,
+          "cache_ttl_hours": 24,
+          "rate_limit_seconds": 2,
+          "max_retries": 3,
+          "timeout": 15,
+          "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        }
+      },
+      "errors": []
+    },
+    "reasoning": {
+      "agent_name": "ReasoningAgent",
+      "agent_type": "reasoning",
+      "status": "completed",
+      "result": {
+        "decision": "RED_FLAG",
+        "confidence": 0.9,
+        "document_authenticity": "NO_DOCUMENTS",
+        "fraud_indicators": [],
+        "explanation_quality": "NONE",
+        "requires_urgent_review": true,
+        "automatic_red_flag_reason": "No supporting documents provided",
+        "document_count": 0,
+        "relevant_document_count": 0,
+        "web_sources_count": 20,
+        "web_validation": "ANALYSIS_ERROR"
+      },
+      "reasoning": "RED_FLAG (Automatic): No supporting documents provided",
+      "confidence": 0.9,
+      "processing_time": 0.0,
+      "timestamp": "2025-10-31T17:25:23.678853",
+      "metadata": {
+        "execution_count": 1,
+        "config": {
+          "can_unflag": false,
+          "relevance_threshold": 7.0,
+          "authenticity_confidence_threshold": 0.8,
+          "explanation_quality_threshold": 0.9,
+          "yellow_flag_confidence_threshold": 0.8,
+          "max_fraud_indicators_for_yellow": 0,
+          "require_documents": true,
+          "min_documents_for_yellow": 1,
+          "require_web_context": false
+        }
+      },
+      "errors": []
+    },
+    "report": {
+      "agent_name": "ReportAgent",
+      "agent_type": "report",
+      "status": "completed",
+      "result": {
+        "summary": "Validation complete",
+        "full_explanation": "```json\n{\n    \"summary\": \"High-value internal transfer ($1.46B) flagged as unusual, validated as RED_FLAG.\",\n    \"full_explanation\": \"An anomaly was identified for GL Account 488184, 'Intra Xfer frm Special Account,' within Entity AGY_69500 for the period October 2025. The transaction involves a substantial amount of $1,464,208,399.32. This transaction was flagged as 'Unusual' due to its exceptionally large value and the nature of an internal transfer from a 'Special Account,' which often warrants closer scrutiny.\\n\\nThe validation process resulted in a 'RED_FLAG' decision with a high confidence level of 90.0%. This decision was made despite the absence of any detailed analysis or",
+        "document_summary": "See full report",
+        "recommendation": "Review findings",
+        "comprehensive_report": "# \ud83d\udd34 Anomaly Validation Report\n**Generated:** 2025-10-31 17:25:32\n**Decision:** RED_FLAG\n\n## \ud83d\udcca Anomaly Details\n- **Entity:** OKLAHOMA TAX COMMISSION\n- **GL Account:** 488184 - Intra Xfer frm Special Account\n- **Period:** 2025-10\n- **Amount:** $1,464,208,399.32\n- **Expected Range:** $0.00 - $0.00\n- **Anomaly Score:** 35.90x threshold\n\n## \ud83c\udfaf Validation Summary\n**Validation complete**\n\n```json\n{\n    \"summary\": \"High-value internal transfer ($1.46B) flagged as unusual, validated as RED_FLAG.\",\n    \"full_explanation\": \"An anomaly was identified for GL Account 488184, 'Intra Xfer frm Special Account,' within Entity AGY_69500 for the period October 2025. The transaction involves a substantial amount of $1,464,208,399.32. This transaction was flagged as 'Unusual' due to its exceptionally large value and the nature of an internal transfer from a 'Special Account,' which often warrants closer scrutiny.\\n\\nThe validation process resulted in a 'RED_FLAG' decision with a high confidence level of 90.0%. This decision was made despite the absence of any detailed analysis or\n\n## \ud83d\udcc4 Document Analysis\n- **Documents Found:** 0\n- **Highly Relevant:** 0\n- **Authenticity:** NO_DOCUMENTS\n\nSee full report\n\n## \ud83c\udf10 Web Research\n- **Sources Searched:** news, regulatory\n- **Articles Found:** 20\n- **Validation Status:** ANALYSIS_ERROR\n\n## \u2705 Explanation Quality\n- **Quality:** NONE\n- **Confidence:** 90.0%\n\n## \ud83d\udca1 Recommendation\nReview findings\n\n## \u26a0\ufe0f  Urgent Action Required\n- **Timeline:** Review within 24-48 hours\n- **Assigned To:** Senior Auditor\n- **Priority:** HIGH",
+        "action_items": [
+          "\ud83d\udd34 Escalate to senior auditor for immediate review",
+          "\ud83d\udcc4 Request supporting documentation from entity",
+          "\ud83d\udcdd Update GL account notes with validation findings",
+          "\ud83d\udcbe Save all supporting documents to permanent storage"
+        ],
+        "report_generated_at": "2025-10-31T17:25:32.547703"
+      },
+      "reasoning": "Generated comprehensive report with 0 document summaries",
+      "confidence": 1.0,
+      "processing_time": 8.868850231170654,
+      "timestamp": "2025-10-31T17:25:32.547703",
+      "metadata": {
+        "execution_count": 1,
+        "config": {
+          "save_validation_results": true,
+          "save_web_cache": true,
+          "generate_reports": true,
+          "report_format": "json"
+        }
+      },
+      "errors": []
+    }
+  },
+  "errors": [],
+  "decision": "RED_FLAG",
+  "confidence": 0.9,
+  "requires_urgent_review": true,
+  "summary": "Validation complete",
+  "full_explanation": "```json\n{\n    \"summary\": \"High-value internal transfer ($1.46B) flagged as unusual, validated as RED_FLAG.\",\n    \"full_explanation\": \"An anomaly was identified for GL Account 488184, 'Intra Xfer frm Special Account,' within Entity AGY_69500 for the period October 2025. The transaction involves a substantial amount of $1,464,208,399.32. This transaction was flagged as 'Unusual' due to its exceptionally large value and the nature of an internal transfer from a 'Special Account,' which often warrants closer scrutiny.\\n\\nThe validation process resulted in a 'RED_FLAG' decision with a high confidence level of 90.0%. This decision was made despite the absence of any detailed analysis or",
+  "recommendation": "Review findings",
+  "comprehensive_report": "# \ud83d\udd34 Anomaly Validation Report\n**Generated:** 2025-10-31 17:25:32\n**Decision:** RED_FLAG\n\n## \ud83d\udcca Anomaly Details\n- **Entity:** OKLAHOMA TAX COMMISSION\n- **GL Account:** 488184 - Intra Xfer frm Special Account\n- **Period:** 2025-10\n- **Amount:** $1,464,208,399.32\n- **Expected Range:** $0.00 - $0.00\n- **Anomaly Score:** 35.90x threshold\n\n## \ud83c\udfaf Validation Summary\n**Validation complete**\n\n```json\n{\n    \"summary\": \"High-value internal transfer ($1.46B) flagged as unusual, validated as RED_FLAG.\",\n    \"full_explanation\": \"An anomaly was identified for GL Account 488184, 'Intra Xfer frm Special Account,' within Entity AGY_69500 for the period October 2025. The transaction involves a substantial amount of $1,464,208,399.32. This transaction was flagged as 'Unusual' due to its exceptionally large value and the nature of an internal transfer from a 'Special Account,' which often warrants closer scrutiny.\\n\\nThe validation process resulted in a 'RED_FLAG' decision with a high confidence level of 90.0%. This decision was made despite the absence of any detailed analysis or\n\n## \ud83d\udcc4 Document Analysis\n- **Documents Found:** 0\n- **Highly Relevant:** 0\n- **Authenticity:** NO_DOCUMENTS\n\nSee full report\n\n## \ud83c\udf10 Web Research\n- **Sources Searched:** news, regulatory\n- **Articles Found:** 20\n- **Validation Status:** ANALYSIS_ERROR\n\n## \u2705 Explanation Quality\n- **Quality:** NONE\n- **Confidence:** 90.0%\n\n## \ud83d\udca1 Recommendation\nReview findings\n\n## \u26a0\ufe0f  Urgent Action Required\n- **Timeline:** Review within 24-48 hours\n- **Assigned To:** Senior Auditor\n- **Priority:** HIGH",
+  "action_items": [
+    "\ud83d\udd34 Escalate to senior auditor for immediate review",
+    "\ud83d\udcc4 Request supporting documentation from entity",
+    "\ud83d\udcdd Update GL account notes with validation findings",
+    "\ud83d\udcbe Save all supporting documents to permanent storage"
+  ],
+  "processing_time_seconds": 152.976616
+}

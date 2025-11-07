@@ -1,0 +1,184 @@
+footer {
+  text-align: center;
+  padding: 0.35rem 1rem;
+  color: #fff;
+  font-size: 0.85rem;
+  background: #000;
+  z-index: 10;
+}
+
+:root {
+  /* Claude-inspired warm neutrals */
+  --bg: #fcfaf9;
+  --fg: #111827;
+  --subtle: #6b7280;
+  --border: #e5e7eb;
+  --accent: #c76c4a;
+  --accent-hover: #b35b3a;
+  --accent-light: #fef3f0;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --grid-line: rgba(0, 0, 0, 0.03);
+  --panel-bg: #f9fafb;
+  --ok: #065f46;
+  --warn: #92400e;
+  
+  /* Message colors */
+  --user-msg-bg: #2d2d2d;
+  --user-msg-text: #ffffff;
+  --assistant-msg-bg: #fcfaf9;
+  --assistant-msg-text: #1f1f1f;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  
+  /* Animation timing */
+  --transition-fast: 150ms;
+  --transition-base: 250ms;
+  --transition-slow: 350ms;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 2rem;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 5;
+}
+
+.logo {
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: var(--accent);
+  letter-spacing: 0.2px;
+}
+
+a {
+  text-decoration: none;
+}
+
+main {
+  min-height: 0;
+  overflow: hidden;
+  padding: 1rem 1rem 0 0;
+  background: linear-gradient(
+    to right,
+    #2d6abd30,
+    #5547aa30,
+    #8a168f30,
+    #af236630
+  );
+  position: relative;
+  align-items: stretch;
+}
+
+.grid {
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: -1;
+}
+
+/* Modern Animation Keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* Utility Classes */
+.fade-in {
+  animation: fadeIn var(--transition-base) ease-out;
+}
+
+.slide-in-right {
+  animation: slideInRight var(--transition-base) ease-out;
+}
+
+.slide-in-left {
+  animation: slideInLeft var(--transition-base) ease-out;
+}

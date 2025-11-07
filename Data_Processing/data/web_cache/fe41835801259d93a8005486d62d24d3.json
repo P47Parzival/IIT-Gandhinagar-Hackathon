@@ -1,0 +1,167 @@
+{
+  "query": "Microsoft AI cloud Azure",
+  "source": "news_search",
+  "timestamp": "2025-10-31T04:25:13.158465",
+  "data": [
+    {
+      "title": "Xbox sales continue to tank",
+      "url": "https://www.theverge.com/news/809532/xbox-sales-continue-to-tank",
+      "snippet": "Xbox sales have been tanking for a while now \u2014\u00a0and the story hasn\u2019t gotten any brighter. Microsoft just released its Q1 2026 earnings and Xbox hardware revenue was down 29 percent year-over-year. Last quarter, it was down 22 percent. Down 29 percent in the fi\u2026",
+      "source": "The Verge",
+      "published_at": "2025-10-29T21:23:53Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "\u2018There isn\u2019t really another choice:\u2019 Signal chief explains why the encrypted messenger relies on AWS",
+      "url": "https://www.theverge.com/news/807147/signal-aws-outage-meredith-whittaker",
+      "snippet": "After last week\u2019s major Amazon Web Services (AWS) outage took Signal along with it, Elon Musk was quick to criticize the encrypted messaging app\u2019s reliance on big tech. But Signal president Meredith Whittaker argues that the company didn\u2019t have any other choi\u2026",
+      "source": "The Verge",
+      "published_at": "2025-10-27T17:22:41Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "OpenAI Finalizes Corporate Restructuring, Gives Microsoft 27% Stake and Technology Access Until 2032",
+      "url": "https://slashdot.org/story/25/10/28/149254/openai-finalizes-corporate-restructuring-gives-microsoft-27-stake-and-technology-access-until-2032",
+      "snippet": "Microsoft and OpenAI have finalized a new agreement that removes uncertainty for investors and clears the path for OpenAI to restructure as a for-profit business. Microsoft receives a 27% ownership stake in OpenAI worth approximately $135 billion and retains \u2026",
+      "source": "Slashdot.org",
+      "published_at": "2025-10-28T14:41:00Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "Microsoft's CFO highlights record infrastructure investments, OpenAI deal in internal memo",
+      "url": "https://www.businessinsider.com/microsofts-cfo-highlights-record-capex-openai-deal-in-internal-memo-2025-10",
+      "snippet": "The memos mostly rehash what the company reports publicly, but often they show what developments the executive deems most important.",
+      "source": "Business Insider",
+      "published_at": "2025-10-29T22:04:35Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "Microsoft Outage Temporarily Derails Outer Worlds 2 Launch",
+      "url": "https://kotaku.com/azure-outage-xbox-game-pass-outer-worlds-2-microsoft-2000639920",
+      "snippet": "The developers ask for patience as fans struggle to download the latest Game Pass release\nThe post Microsoft Outage Temporarily Derails Outer Worlds 2 Launch appeared first on Kotaku.",
+      "source": "Kotaku",
+      "published_at": "2025-10-29T18:56:45Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "Microsoft CEO Satya Nadella shared his advice to bosses on navigating AI's tech, model, and organizational shifts",
+      "url": "https://www.businessinsider.com/satya-nadella-ai-is-ripping-and-replacing-how-companies-work-2025-10",
+      "snippet": "Microsoft CEO Satya Nadella says AI is reshaping tech, business models, and organizations, and leaders must adapt quickly.",
+      "source": "Business Insider",
+      "published_at": "2025-10-29T11:01:51Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "Buy, Sell or Hold GOOGL Stock Before Q3 Earnings? Here's What to Know",
+      "url": "https://finance.yahoo.com/news/buy-sell-hold-googl-stock-173800424.html",
+      "snippet": "Alphabet's AI-driven Search gains, cloud expansion, and easing regulatory pressure set the stage for its Q3 2025 earnings release.",
+      "source": "Yahoo Entertainment",
+      "published_at": "2025-10-24T17:38:00Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "AI Is the Bubble to Burst Them All",
+      "url": "https://www.wired.com/story/ai-bubble-will-burst/",
+      "snippet": "I talked to the scholars who literally wrote the book on tech bubbles\u2014and applied their test.",
+      "source": "Wired",
+      "published_at": "2025-10-27T10:00:00Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "The next chapter of the Microsoft\u2013OpenAI partnership",
+      "url": "https://openai.com/index/next-chapter-of-microsoft-openai-partnership/",
+      "snippet": "Microsoft and OpenAI sign a new agreement that strengthens its long-term partnership, expands innovation, and ensures responsible AI progress.",
+      "source": "Openai.com",
+      "published_at": "2025-10-28T13:05:40Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "AI Will Kill the Smartphone\u2014and Maybe the Screen Entirely",
+      "url": "https://www.wired.com/story/ai-kill-phone-screen/",
+      "snippet": "Screens might feel necessary. They\u2019re not. If done right, the AI revolution will free us from their merciless tyranny.",
+      "source": "Wired",
+      "published_at": "2025-10-27T10:00:00Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "Grammarly is changing its name to Superhuman",
+      "url": "https://www.theverge.com/news/808472/grammarly-superhuman-ai-rebrand-relaunch",
+      "snippet": "AI writing aid Grammarly is now part of Superhuman, alongside Coda, Superhuman Mail, and a new AI assistant called Superhuman Go. The new Superhuman suite, including all those tools, will be available starting today for everyone with a paid Grammarly Pro subs\u2026",
+      "source": "The Verge",
+      "published_at": "2025-10-29T12:33:52Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "Downdetector shows Microsoft Azure is down \u2014 major outages hit Office 365, Teams, Xbox, and more",
+      "url": "https://www.windowscentral.com/microsoft/azure/downdetector-shows-microsoft-azure-is-down-major-outages-hit-office-365-teams-xbox-and-more",
+      "snippet": "Downdetector reports show widespread outages across Microsoft\u2019s cloud platform, with Azure downtime affecting Office 365, Teams, Xbox, and other key services.",
+      "source": "Windows Central",
+      "published_at": "2025-10-29T17:26:09Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "Why is Bill Gates tone policing on climate change?",
+      "url": "https://www.theverge.com/report/808647/bill-gates-climate-change-ai-emissions-memo",
+      "snippet": "Bill Gates wants us all to be more upbeat about climate change. He argues that we've made great progress on the problem, aided in large part by technological advances. So it's time to focus more on improving people's lives, particularly by fighting hunger and\u2026",
+      "source": "The Verge",
+      "published_at": "2025-10-29T12:05:45Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "Leaked Microsoft org chart reveals the top people in Mustafa Suleyman's AI team, including five ex-Googler hires",
+      "url": "https://www.businessinsider.com/microsoft-ai-ceo-mustafa-suleyman-org-chart-google-2025-10",
+      "snippet": "Internal Microsoft organization charts show how Mustafa Suleyman's team has evolved since last year.",
+      "source": "Business Insider",
+      "published_at": "2025-10-29T09:00:01Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "Halo on PlayStation might be what Xbox needs to survive",
+      "url": "https://www.theverge.com/entertainment/809053/halo-playstation-xbox-multiplatform-strategy",
+      "snippet": "Halo coming to PlayStation is one of those events that, five years ago, would have been the tell that \"something is not right here\" in a show about time travel or alternate universes. Looking at the state of Xbox with its layoffs, game cancellations, price hi\u2026",
+      "source": "The Verge",
+      "published_at": "2025-10-29T16:26:44Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "Nvidia Becomes the First Company to Hit $5 Trillion Market Cap",
+      "url": "https://gizmodo.com/nvidia-becomes-the-first-company-to-hit-5-trillion-market-cap-2000678694",
+      "snippet": "The company hit a historic record just 4 months after the last one.",
+      "source": "Gizmodo.com",
+      "published_at": "2025-10-29T14:46:21Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "Fed and Big Tech take center stage on Wall Street",
+      "url": "https://finance.yahoo.com/video/fed-big-tech-center-stage-121916362.html",
+      "snippet": "Policymakers at the Federal Reserve will deliver a 25 basis point rate cut on Wednesday according to Anna Macdonald from Aubrey Asset Management. She warned ...",
+      "source": "Yahoo Entertainment",
+      "published_at": "2025-10-27T12:19:16Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "New Trump Administration Energy Rule Would Enable Data Centers with \u2018Large Loads\u2019",
+      "url": "https://gizmodo.com/ai-large-loads-2000676957",
+      "snippet": "The \"urgent\" regulatory amendment from the Energy Department would benefit AI companies.",
+      "source": "Gizmodo.com",
+      "published_at": "2025-10-25T14:00:39Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "'Peacetime CEO': Microsoft resolves major dispute with OpenAI ahead of earnings",
+      "url": "https://www.businessinsider.com/microsoft-resolves-major-dispute-with-openai-ahead-of-earnings-2025-10",
+      "snippet": "Microsoft lifted a funding restriction on OpenAI that became a point of conflict after ChatGPT took off required more computing power.",
+      "source": "Business Insider",
+      "published_at": "2025-10-29T01:08:40Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    },
+    {
+      "title": "Trump\u2019s DHS is recruiting ICE officers with a Halo meme",
+      "url": "https://www.theverge.com/news/807514/trump-white-house-dhs-ice-halo-image-meme-gamestop-console-wars",
+      "snippet": "After using the original Pok\u00e9mon theme song in a montage of ICE raids, the Department of Homeland Security (DHS) is using another popular video game franchise to promote itself on social media: Halo. This morning, the DHS posted an image featuring Halo charac\u2026",
+      "source": "The Verge",
+      "published_at": "2025-10-27T22:21:24Z",
+      "scraped_at": "2025-10-31T04:25:13.158465"
+    }
+  ]
+}

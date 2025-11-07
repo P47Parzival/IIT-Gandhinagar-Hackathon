@@ -1,0 +1,33 @@
+{
+  "timestamp": "2025-10-31T21:51:11.719570",
+  "paper_baseline": 0.004754559158795776,
+  "best_trial": {
+    "value": 0.003460547757318472,
+    "params": {
+      "config_type": "paper"
+    },
+    "user_attrs": {
+      "anomaly_rate": 5.0,
+      "threshold": 0.009420202160254031,
+      "final_epoch": 15
+    }
+  },
+  "all_trials": [
+    {
+      "number": 0,
+      "value": 0.0043863291486299465,
+      "params": {
+        "config_type": "optimized"
+      },
+      "state": "1"
+    },
+    {
+      "number": 1,
+      "value": 0.003460547757318472,
+      "params": {
+        "config_type": "paper"
+      },
+      "state": "1"
+    }
+  ]
+}

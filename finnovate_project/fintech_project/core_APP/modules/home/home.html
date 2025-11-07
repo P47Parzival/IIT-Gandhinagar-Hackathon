@@ -1,0 +1,182 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Finnovate Project 2025</title>
+    <link rel="stylesheet" href="{% static 'base.css' %}" />
+    <style>
+      :root {
+        --bg: #ffffff;
+        --fg: #111827;
+        --subtle: #6b7280;
+        --border: #e5e7eb;
+        --accent: #2563eb;
+        --accent-light: #eff6ff;
+        --radius: 10px;
+        --grid-line: rgba(0, 0, 0, 0.03);
+      }
+
+      main {
+        flex: 1;
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        min-height: 0;
+        padding: 0;
+      }
+
+      .left-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 4rem 4rem;
+        background: linear-gradient(145deg, #f9fafb 0%, #ffffff 100%);
+      }
+
+      .left-panel h1 {
+        font-size: 2.3rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+      }
+
+      .left-panel p {
+        color: var(--subtle);
+        max-width: 600px;
+        margin-bottom: 2rem;
+      }
+
+      .actions {
+        display: flex;
+        gap: 0.8rem;
+      }
+
+      .btn {
+        padding: 0.65rem 1.2rem;
+        border-radius: var(--radius);
+        font-weight: 500;
+        border: 1px solid var(--border);
+        cursor: pointer;
+        background: white;
+        color: var(--accent);
+      }
+
+      .btn.primary {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+      }
+
+      .btn:hover {
+        opacity: 0.9;
+      }
+
+      .right-panel {
+        width: 45%;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(
+          to right,
+          #2d6abd30,
+          #5547aa30,
+          #8a168f30,
+          #af236630
+        );
+        border-left: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .mock-card {
+        position: relative;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        width: 70%;
+        max-width: 400px;
+        padding: 1.5rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+        z-index: 1;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+
+      .mock-title {
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--accent);
+        margin-bottom: 1rem;
+      }
+
+      .mock-item {
+        height: 18px;
+        background: var(--accent-light);
+        border-radius: 5px;
+        margin-bottom: 0.5rem;
+        width: calc(60% + 40% * var(--w, 0));
+      }
+
+      @media (max-width: 900px) {
+        main {
+          flex-direction: column;
+        }
+        .right-panel {
+          width: 100%;
+          height: 300px;
+        }
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+    </style>
+  </head>
+  <body>
+    {% include 'base/navbar.html' %}
+
+    <main>
+      <section class="left-panel">
+        <h1>Automated Balance Sheet Assurance</h1>
+        <p>
+          Simplify compliance and audits with one workspace for validation,
+          variance tracking, and reporting, powered by AI-driven controls and
+          structured workflows.
+        </p>
+        <div class="actions">
+          <a class="btn primary" href="{% url 'auth_view' %}"
+            >Launch Application</a
+          >
+          <a class="btn">View Docs</a>
+        </div>
+      </section>
+
+      <section class="right-panel">
+        <div class="grid"></div>
+        <div class="mock-card">
+          <div class="mock-title">Trial Balance Summary</div>
+          <div class="mock-item" style="--w: 0.1"></div>
+          <div class="mock-item" style="--w: 0.3"></div>
+          <div class="mock-item" style="--w: 0.7"></div>
+          <div class="mock-item" style="--w: 0.5"></div>
+          <div class="mock-item" style="--w: 0.8"></div>
+        </div>
+      </section>
+    </main>
+
+    {% include 'base/footer.html' %}
+  </body>
+</html>
