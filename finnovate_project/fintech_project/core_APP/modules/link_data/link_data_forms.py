@@ -3,9 +3,20 @@ from core_APP.models import UploadedFile, SAPLink
 
 
 class UploadedFileForm(forms.ModelForm):
+    TABLE_TYPE_CHOICES = [
+        ("trial_balance", "Trial Balance"),
+        ("balance_sheet", "Balance Sheet"),
+    ]
+
+    table_type = forms.ChoiceField(
+        choices=TABLE_TYPE_CHOICES,
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
     class Meta:
         model = UploadedFile
-        fields = ['file']
+        fields = ['file', 'table_type']
 
 
 class SAPLinkForm(forms.ModelForm):

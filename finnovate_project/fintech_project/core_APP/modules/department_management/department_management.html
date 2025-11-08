@@ -1,0 +1,304 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Department Management | Finnovate</title>
+    <link rel="stylesheet" href="{% static 'base.css' %}" />
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.png' %}">
+    <style>
+      main {
+        min-height: calc(100vh - 160px);
+        padding: 2rem;
+        display: grid;
+        grid-template-columns: minmax(0, 480px) minmax(0, 1fr);
+        gap: 2rem;
+        align-items: start;
+      }
+
+      .panel {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: 0 15px 40px rgba(15, 23, 42, 0.08);
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        height: 100%;
+      }
+
+      .panel h1,
+      .panel h2 {
+        margin: 0;
+        color: #0f172a;
+      }
+
+      .panel p {
+        margin: 0;
+        color: var(--subtle);
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      label {
+        font-weight: 600;
+        color: #1f2937;
+      }
+
+      input,
+      select {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.65rem 0.75rem;
+        font: inherit;
+        background: #f8fafc;
+        transition: border 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      input {
+        width: 100%;
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        background: #fff;
+      }
+
+      button {
+        align-self: flex-start;
+        padding: 0.7rem 1.6rem;
+        border-radius: 999px;
+        border: none;
+        background: var(--accent);
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
+      }
+
+      .messages {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+      }
+
+      .message {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-size: 0.95rem;
+      }
+
+      .message.success {
+        background: rgba(16, 185, 129, 0.12);
+        color: #065f46;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+      }
+
+      .message.error {
+        background: rgba(239, 68, 68, 0.12);
+        color: #991b1b;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+      }
+
+      .table-panel .header {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+      }
+
+      .search-form {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      .search-form input {
+        flex: 1;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1.5rem;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      th,
+      td {
+        padding: 0.9rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        background: white;
+      }
+
+      th {
+        background: #f1f5f9;
+        font-weight: 600;
+        color: #0f172a;
+      }
+
+      tbody tr:hover td {
+        background: #f8fafc;
+      }
+
+      @media (max-width: 1100px) {
+        main {
+          grid-template-columns: 1fr;
+          padding: 2rem;
+        }
+      }
+
+      @media (max-width: 640px) {
+        main {
+          padding: 1.5rem;
+        }
+
+        .search-form {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .search-form button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    {% include 'base/navbar.html' %}
+
+    <main>
+      <div class="grid"></div>
+
+      <section class="panel">
+        <h1>Department Management</h1>
+        <p>Invite Department Heads and BUFC reviewers.</p>
+
+        {% if messages %}
+        <div class="messages">
+          {% for message in messages %}
+          <div class="message {{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <div class="field">
+            {{ form.first_name.label_tag }} {{ form.first_name }}
+          </div>
+
+          <div class="field">
+            {{ form.last_name.label_tag }} {{ form.last_name }}
+          </div>
+
+          <div class="field">
+            {{ form.username.label_tag }} {{ form.username }}
+          </div>
+
+          <div class="field">{{ form.email.label_tag }} {{ form.email }}</div>
+
+          <div class="field">
+            {{ form.password.label_tag }} {{ form.password }} 
+            {% if form.password.help_text %}
+            <small style="color: var(--subtle)"
+              >{{ form.password.help_text }}</small
+            >
+            {% endif %}
+          </div>
+
+          <div class="field">
+            {{ form.user_role.label_tag }} {{ form.user_role }}
+            {% if form.user_role.help_text %}
+            <small style="color: var(--subtle)"
+              >{{ form.user_role.help_text }}</small
+            >
+            {% endif %}
+          </div>
+
+          <div class="field">
+            {{ form.department.label_tag }} {{ form.department }}
+          </div>
+
+          {% if form.non_field_errors %}
+          <div class="message error">{{ form.non_field_errors|striptags }}</div>
+          {% endif %}
+
+          <button type="submit">Create User</button>
+        </form>
+      </section>
+
+      <section class="panel table-panel">
+        <div class="header">
+          <h2>Departments</h2>
+          <p>
+            Review the list of departments and quickly locate teams using the
+            search box.
+          </p>
+
+          <form method="get" class="search-form">
+            <input
+              type="search"
+              name="q"
+              placeholder="Search by department name..."
+              value="{{ search_query }}"
+            />
+            <button type="submit">Search</button>
+          </form>
+        </div>
+
+        {% if departments %}
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Department Name</th>
+              <th>Department SPOC</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for department in departments %}
+            <tr>
+              <td>{{ department.id|default:"—" }}</td>
+              <td>{{ department.name }}</td>
+              <td>{{ department.department_spoc|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p style="margin-top: 1.5rem; color: var(--subtle)">
+          No departments found for "{{ search_query }}".
+        </p>
+        {% endif %}
+      </section>
+    </main>
+
+    {% include 'base/footer.html' %}
+  </body>
+</html>

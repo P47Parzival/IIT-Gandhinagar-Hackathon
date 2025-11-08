@@ -1,0 +1,387 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reports | Admin Panel</title>
+    <link rel="stylesheet" href="{% static 'base.css' %}" />
+    <link rel="stylesheet" href="{% static 'output.css' %}" />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.png' %}">
+    <style>
+      :root {
+        --sap-blue: #0070f2;
+        --sap-darkblue: #005cc5;
+        --sap-gold: #f5c14e;
+        --sap-bg: #f5f7fb;
+        --sap-fg: #1a1a1a;
+        --sap-border: #d0d7e3;
+        --sap-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        --sap-header-bg: #354a5f;
+        --sap-header-fg: #ffffff;
+      }
+
+      html, body {
+        height: auto;
+        min-height: 100vh;
+      }
+
+      body {
+        background: var(--sap-bg);
+        color: var(--sap-fg);
+        font-family: 'Open Sans', '72', Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden; /* Prevent horizontal scroll on body */
+      }
+
+      .reports-container {
+        max-width: none;        /* Remove max-width restriction */
+        width: 100%;
+        margin: 2rem auto;
+        padding: 0 1.5rem 4rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        box-sizing: border-box;
+      }
+
+      /* Three-tier architecture cards */
+      .architecture-grid {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .tier-card {
+        display: block;
+        padding: 1.75rem 2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--sap-shadow);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+      }
+
+      .tier-card::after {
+        content: "→";
+        position: absolute;
+        right: 1.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.75rem;
+        opacity: 0.4;
+        transition: transform 0.25s ease, opacity 0.25s ease;
+      }
+
+      .tier-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.15);
+      }
+
+      .tier-card:hover::after {
+        transform: translate(6px, -50%);
+        opacity: 0.7;
+      }
+
+      .tier-card small {
+        display: block;
+        font-size: 0.9rem;
+        opacity: 0.85;
+        margin-bottom: 0.6rem;
+      }
+
+      .tier-card h2 {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 600;
+      }
+
+      .tier-card p {
+        margin: 0.6rem 0 0;
+        font-size: 0.95rem;
+        opacity: 0.9;
+      }
+
+      .tier-1 {
+        background: linear-gradient(120deg, #0f172a, #2563eb);
+      }
+
+      .tier-2 {
+        background: linear-gradient(120deg, #1d3557, #4cc9f0);
+      }
+
+      .tier-3 {
+        background: linear-gradient(120deg, #ff8f5a, #f5c14e);
+        color: #1a1a1a;
+      }
+
+      .tier-3::after {
+        color: rgba(0, 0, 0, 0.45);
+      }
+
+      /* RACI Table - enhanced SAP look */
+      .raci-wrapper {
+        background: white;
+        border: 1px solid var(--sap-border);
+        border-radius: 4px;
+        box-shadow: var(--sap-shadow);
+        overflow: hidden;
+      }
+
+      .raci-title-bar {
+        background: var(--sap-header-bg);
+        color: white;
+        padding: 1.2rem 2rem;
+      }
+
+      .raci-title-bar h2 {
+        margin: 0;
+        font-size: 1.35rem;
+        font-weight: 600;
+      }
+
+      .raci-title-bar p {
+        margin: 0.5rem 0 0;
+        opacity: 0.9;
+        font-size: 0.9rem;
+      }
+
+      .raci-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+      }
+
+      .matrix-table {
+        width: 100%;
+        min-width: 800px; /* Ensure table doesn't collapse too much */
+        border-collapse: collapse;
+        font-size: 0.92rem;
+      }
+
+      .matrix-table thead {
+        background: #e6f0ff;
+        color: var(--sap-darkblue);
+      }
+
+      .matrix-table th {
+        padding: 1rem;
+        text-align: center;
+        font-weight: 600;
+        border-bottom: 2px solid var(--sap-border);
+        font-size: 0.9rem;
+        white-space: nowrap;
+      }
+
+      .matrix-table th:first-child {
+        text-align: left;
+        background: #f5f7fb;
+        position: sticky;
+        left: 0;
+        z-index: 2;
+      }
+
+      .matrix-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--sap-border);
+        text-align: center;
+      }
+
+      .matrix-table tbody tr:hover {
+        background: #f8fbff;
+      }
+
+      .task-cell {
+        text-align: left;
+        font-weight: 600;
+        background: #f5f7fb;
+        position: sticky;
+        left: 0;
+        z-index: 1;
+      }
+
+      .task-caption {
+        display: block;
+        margin-top: 0.3rem;
+        font-size: 0.82rem;
+        font-weight: 400;
+        color: #666;
+      }
+
+      /* RACI symbols styling */
+      .raci-a { background: #e3f2fd; color: #1565c0; font-weight: 700; }
+      .raci-r { background: #e8f5e9; color: #2e7d32; font-weight: 700; }
+      .raci-c { background: #fff3e0; color: #ef6c00; }
+      .raci-i { background: #f3e5f5; color: #7b1fa2; }
+
+      .matrix-table td:not(.task-cell) {
+        font-weight: 600;
+        min-width: 50px;
+      }
+
+      /* Legend - SAP style */
+      .raci-legend {
+        padding: 1.5rem 2rem;
+        background: #fafcff;
+        border-top: 1px solid var(--sap-border);
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+        font-size: 0.88rem;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .legend-box {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.8rem;
+      }
+
+      /* Responsive fixes */
+      @media (max-width: 960px) {
+        .reports-container {
+          padding: 0 0.5rem 4rem;
+        }
+        .architecture-grid {
+          gap: 0.75rem;
+        }
+        .tier-card {
+          padding: 1.5rem 1.75rem;
+        }
+        .matrix-table {
+          min-width: 600px;
+        }
+        .matrix-table thead { display: none; }
+        .matrix-table tr {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.5rem;
+          padding: 1rem;
+          border-bottom: 1px solid var(--sap-border);
+        }
+        .matrix-table td {
+          border: none;
+        }
+        .task-cell {
+          grid-column: 1 / -1;
+          background: #f0f4f8;
+          padding: 1rem;
+        }
+        .matrix-table td:not(.task-cell)::before {
+          content: attr(data-role);
+          display: block;
+          font-weight: 600;
+          color: var(--sap-blue);
+          margin-bottom: 0.25rem;
+          font-size: 0.85rem;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .matrix-table tr {
+          grid-template-columns: 1fr;
+        }
+        .matrix-table td:not(.task-cell) {
+          grid-column: 1 / -1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    {% include 'base/navbar.html' %}
+
+    <main class="reports-container">
+      <!-- Three-tier architecture navigation -->
+      <section class="architecture-grid">
+        <a class="tier-card tier-1" href="{% url 'dashboard_page' %}">
+          <small>Tier 1 · Command Layer</small>
+          <h2>AI Command Centre</h2>
+          <p>Access the RLHF chat workspace, tool telemetry, and compare mode controls.</p>
+        </a>
+        <a class="tier-card tier-2" href="{% url 'link_data_page' %}">
+          <small>Tier 2 · Data Layer</small>
+          <h2>Link Data & SAP Connectors</h2>
+          <p>Ingest GL files, connect SAP SuccessFactors, and manage enterprise sources.</p>
+        </a>
+        <a class="tier-card tier-3" href="{% url 'reports_tier3' %}">
+          <small>Tier 3 · Insight Layer</small>
+          <h2>Governance Reports & RACI Matrix</h2>
+          <p>Review ownership and accountability across the hiring lifecycle.</p>
+        </a>
+      </section>
+
+      <!-- RACI Matrix Section -->
+      <section class="raci-wrapper">
+        <div class="raci-title-bar">
+          <h2>Recruitment Workflow Responsibility Matrix</h2>
+          <p>A RACI overview of the current hiring sprint, highlighting who is Accountable (A), Responsible (R), Consulted (C), and Informed (I) for each stage of the requisition lifecycle.</p>
+        </div>
+
+        <div class="raci-table-container">
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th style="text-align: left;">Task / Stakeholders</th>
+                {% for role in roles %}
+                  <th>
+                    {{ role.label }}<br>
+                    <small style="font-weight: 400; color: #555;">{{ role.name }}</small>
+                  </th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for task in tasks %}
+                <tr>
+                  <td class="task-cell">
+                    {{ task.title }}
+                    <span class="task-caption">{{ task.caption }}</span>
+                  </td>
+                  {% for cell in task.cells %}
+                    <td class="{% if cell.assignment == 'A' %}raci-a{% elif cell.assignment == 'R' %}raci-r{% elif cell.assignment == 'C' %}raci-c{% elif cell.assignment == 'I' %}raci-i{% endif %}"
+                        data-role="{{ cell.role_label }}">
+                      {{ cell.assignment }}
+                    </td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="raci-legend">
+          <div class="legend-item">
+            <div class="legend-box raci-a">A</div>
+            <span>Accountable</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box raci-r">R</div>
+            <span>Responsible</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box raci-c">C</div>
+            <span>Consulted</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box raci-i">I</div>
+            <span>Informed</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    {% include 'base/footer.html' %}
+  </body>
+</html>

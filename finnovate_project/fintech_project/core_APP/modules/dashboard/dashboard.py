@@ -5,28 +5,38 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
+from django.shortcuts import redirect
 import json
 import os
 import time
 import re
 from core_APP.models import Conversation, Message
 
+
 logger = logging.getLogger(__name__)
 
 # MCP Session Cache
 mcp_session_cache = {}
 
+
 def dashboard_view(request):
     """Dashboard view."""
-    return render(
-        request,
-        'dashboard/dashboard.html',
-        {
-            'chatbot_api_base': getattr(settings, 'CHATBOT_API_BASE_URL', ''),
-            'chatbot_bridge_enabled': bool(getattr(settings, 'CHATBOT_INTERNAL_TOKEN', '') and getattr(settings, 'CHATBOT_API_BASE_URL', '')),
-        }
-    )
 
+    if not request.user.is_authenticated:
+        return redirect("landing_page")
+    print("Dashboard view for User: ", request.user.id)
+    if request.user.user_type == 1:
+        # Admin
+        return render(request, 'dashboard/dashboard.html')
+    elif request.user.user_type in [2, 3]:
+        # Tower Lead and Finance Controller
+        return render(request, 'dashboard/dashboard.html')
+    elif request.user.user_type == 4:
+        # User
+        return render(request, 'dashboard/dashboard.html')
+    else:
+        return render(request, 'dashboard/dashboard.html')
+    
 
 def get_mcp_client(user_email, conversation_id):
     """
@@ -136,10 +146,6 @@ def chat_stream(request):
     # Auth check
     if not request.user or not request.user.is_authenticated:
         return JsonResponse({'error': 'Unauthorized - Please sign in'}, status=401)
-
-    # Bridge to agentic Next.js chatbot when requested
-    if (payload.get('mode') or '').lower() == 'agentic':
-        return stream_agentic_via_chatbot(request, payload)
 
     # Get conversation
     conversation_id = payload.get('conversationId')
@@ -384,68 +390,6 @@ def stream_fallback(text: str):
     for ch in fallback_message:
         yield ch
         time.sleep(0.01)
-
-
-def stream_agentic_via_chatbot(request, payload):
-    """Proxy chat handling to the Next.js chatbot for agentic tool execution."""
-    chatbot_base = getattr(settings, 'CHATBOT_API_BASE_URL', '')
-    internal_token = getattr(settings, 'CHATBOT_INTERNAL_TOKEN', '')
-
-    if not chatbot_base or not internal_token:
-        logger.error('Agentic chatbot bridge requested but not configured')
-        return JsonResponse({'error': 'Agent mode not configured'}, status=500)
-
-    import requests
-
-    chatbot_url = chatbot_base.rstrip('/') + '/api/chat'
-    agent_conversation_id = payload.get('agentConversationId') or payload.get('conversationId')
-
-    body = {
-        'messages': payload.get('messages', []),
-        'conversationId': agent_conversation_id,
-        'internalUserId': str(getattr(request.user, 'id', '')),
-        'internalUserEmail': getattr(request.user, 'email', ''),
-    }
-
-    headers = {
-        'Content-Type': 'application/json',
-        'X-Internal-Agent-Token': internal_token,
-    }
-
-    try:
-        upstream = requests.post(
-            chatbot_url,
-            headers=headers,
-            json=body,
-            stream=True,
-            timeout=120,
-        )
-    except requests.RequestException as exc:
-        logger.error('Failed to reach chatbot service: %s', exc)
-        return JsonResponse({'error': 'Failed to reach agent service'}, status=502)
-
-    if upstream.status_code >= 400:
-        try:
-            error_payload = upstream.json()
-        except ValueError:
-            error_payload = {'error': upstream.text or 'Agent service error'}
-        logger.error('Chatbot service returned error %s: %s', upstream.status_code, error_payload)
-        return JsonResponse(error_payload, status=upstream.status_code)
-
-    agent_response_conversation_id = upstream.headers.get('X-Conversation-Id')
-
-    def generate():
-        try:
-            for chunk in upstream.iter_content(chunk_size=1024):
-                if chunk:
-                    yield chunk.decode('utf-8', errors='ignore')
-        finally:
-            upstream.close()
-
-    response = StreamingHttpResponse(generate(), content_type='text/plain; charset=utf-8')
-    if agent_response_conversation_id:
-        response['X-Conversation-Id'] = agent_response_conversation_id
-    return response
 
 
 def generate_conversation_title(first_message: str) -> str:

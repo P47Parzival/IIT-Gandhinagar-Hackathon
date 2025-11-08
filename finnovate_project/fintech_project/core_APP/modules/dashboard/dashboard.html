@@ -7,6 +7,7 @@
     <title>Dashboard | Finnovate</title>
     <link rel="stylesheet" href="{% static 'base.css' %}" />
     <link rel="stylesheet" href="{% static 'output.css' %}" />
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.png' %}">
     <style>
       main {
         min-height: 0;
@@ -1982,9 +1983,7 @@
 
     <script>
       // State
-      const chatbotBridgeEnabled = {{ chatbot_bridge_enabled|yesno:"true,false" }};
       let conversationId = null;
-      let agentConversationId = null;
       let messageHistory = [];
       let isLoading = false;
       let compareMode = false;
@@ -2093,7 +2092,6 @@
 
       function startNewChat() {
         conversationId = null;
-        agentConversationId = null;
         messageHistory = [];
         messagesArea.innerHTML = '';
         messagesArea.classList.add('hidden');
@@ -2196,8 +2194,6 @@
           await generateDualResponses(message);
           compareMode = false;
           compareModeToggle.classList.remove('active');
-        } else if (chatbotBridgeEnabled) {
-          await generateAgentResponse();
         } else {
           // Standard single response
           await generateSingleResponse();
@@ -2249,79 +2245,12 @@
             scrollToBottom();
           }
 
-          if (fullContent.trim()) {
-            messageHistory.push({ role: 'assistant', content: fullContent });
-          }
+          messageHistory.push({ role: 'assistant', content: fullContent });
 
         } catch (error) {
           console.error('Error:', error);
           removeLoadingIndicator();
           addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
-        } finally {
-          isLoading = false;
-          sendButton.disabled = false;
-        }
-      }
-
-      async function generateAgentResponse() {
-        addLoadingIndicator();
-        isLoading = true;
-        sendButton.disabled = true;
-
-        try {
-          const payload = {
-            messages: messageHistory,
-            conversationId: conversationId,
-            agentConversationId,
-            mode: 'agentic'
-          };
-
-          const response = await fetch('/dashboard/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          });
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || `Agent service error ${response.status}`);
-          }
-
-          const respConvId = response.headers.get('X-Conversation-Id');
-          if (respConvId) {
-            agentConversationId = respConvId;
-          }
-
-          if (!response.body) {
-            throw new Error('Agent service returned an empty response');
-          }
-
-          removeLoadingIndicator();
-
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder();
-          let fullContent = '';
-
-          const contentDiv = addMessage('assistant', '');
-
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value, { stream: true });
-            fullContent += chunk;
-            contentDiv.innerHTML = renderMarkdown(fullContent);
-            scrollToBottom();
-          }
-
-          if (fullContent.trim()) {
-            messageHistory.push({ role: 'assistant', content: fullContent });
-          }
-
-        } catch (error) {
-          console.error('Agent mode error:', error);
-          removeLoadingIndicator();
-          addMessage('assistant', 'Sorry, the agentic chatbot is unavailable right now. Please try again later.');
         } finally {
           isLoading = false;
           sendButton.disabled = false;

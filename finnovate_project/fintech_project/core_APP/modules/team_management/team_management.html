@@ -1,0 +1,476 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Team Management | Finnovate</title>
+    <link rel="stylesheet" href="{% static 'base.css' %}" />
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.png' %}">
+
+    <style>
+      main {
+        padding: 1rem;
+        display: grid;
+        grid-template-columns: 35% 65%;
+        align-items: start;
+      }
+
+      .panel-1 {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: 0 15px 40px rgba(15, 23, 42, 0.08);
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        height: 100%;
+        overflow-y: auto;
+        margin-right: 1rem;
+        scrollbar-width: thin;
+      }
+
+      .panel-1 h1,
+      .panel-1 h2 {
+        margin: 0;
+        color: #0f172a;
+      }
+
+      .panel-1 p {
+        margin: 0;
+        color: var(--subtle);
+        font-size: 0.9rem;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        flex-shrink: 0;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        width: 100%;
+      }
+
+      label {
+        font-weight: 600;
+        color: #1f2937;
+        font-size: 0.9rem;
+      }
+
+      input,
+      select {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.65rem 0.75rem;
+        font: inherit;
+        background: #f8fafc;
+        transition: border 0.2s ease, box-shadow 0.2s ease;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        background: #fff;
+      }
+
+      button {
+        align-self: flex-start;
+        padding: 0.7rem 1.6rem;
+        border-radius: 999px;
+        border: none;
+        background: var(--accent);
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
+      }
+
+      .messages {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        margin-bottom: 1rem;
+      }
+
+      .message {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-size: 0.95rem;
+      }
+
+      .message.success {
+        background: rgba(16, 185, 129, 0.12);
+        color: #065f46;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+      }
+
+      .message.error {
+        background: rgba(239, 68, 68, 0.12);
+        color: #991b1b;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+      }
+
+      .team-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .team-member {
+        padding: 0.9rem;
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .team-member-name {
+        display: flex;
+        justify-content: space-between;
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 0.95rem;
+      }
+
+      .team-member-role {
+        font-size: 0.8rem;
+        color: #8997aa;
+        border: 1px solid #8997aa;
+        padding:1px 3px;
+        border-radius: 100px;
+      }
+
+      .team-member-email {
+        font-size: 0.75rem;
+        color: var(--subtle);
+      }
+
+      .team-member-gl-codes {
+        font-size: 0.75rem;
+        color: #2563eb;
+        margin-top: 0.25rem;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: var(--subtle);
+        font-size: 0.9rem;
+      }
+
+      .available-users-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .search-form {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-direction: row;
+      }
+
+      .search-form input {
+        flex: 1;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.65rem 0.75rem;
+        font: inherit;
+        background: #f8fafc;
+      }
+
+      .search-form input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        background: #fff;
+      }
+
+      .search-form button {
+        padding: 0.65rem 1.2rem;
+        border-radius: 8px;
+        border: none;
+        background: var(--accent);
+        color: white;
+        font-weight: 500;
+        cursor: pointer;
+      }
+
+      .users-table-container {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+      }
+
+      .users-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+      }
+
+      .users-table thead {
+        background: #f1f5f9;
+        z-index: 10;
+      }
+
+      .users-table th,
+      .users-table td {
+        padding: 0.9rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .users-table th {
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 0.9rem;
+      }
+
+      .users-table td {
+        font-size: 0.9rem;
+        color: #1f2937;
+      }
+
+      .users-table tbody tr:hover {
+        background: #f8fafc;
+      }
+
+      @media (max-width: 1100px) {
+        main {
+          grid-template-columns: 1fr;
+          padding: 2rem;
+        }
+      }
+
+      @media (max-width: 640px) {
+        main {
+          padding: 1.5rem;
+        }
+      }
+
+      .field-wrapper {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          gap: 1.5rem;
+      }
+
+      .gl-assignment-form {
+        background: #f1f5f9;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border);
+      }
+
+      .gl-assignment-form h3 {
+        margin: 0 0 1rem 0;
+        font-size: 0.95rem;
+        color: #0f172a;
+      }
+    </style>
+  </head>
+  <body>
+    {% include 'base/navbar.html' %}
+
+    <main>
+      <div class="grid"></div>
+
+      <!-- Left Panel: Team List & GL Assignment -->
+      <section class="panel-1">
+        <h2>{{ department.name }} Members</h2>
+
+        <!-- GL Code Assignment Form -->
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="assign_gl">
+
+            <div class="field-wrapper">
+              <div class="field">
+                <label for="id_user_id">{{ gl_form.user_id.label }}</label>
+                <select name="user_id" id="id_user_id" required>
+                  <option value="">---------</option>
+                  {% for member in team_members %}
+                  <option value="{{ member.user.id }}">
+                    {% with full_name=member.user.get_full_name %}
+                      {% if full_name %}{{ full_name }}{% else %}{{ member.user.username }}{% endif %}
+                    {% endwith %}: {{ member.user.email }}
+                  </option>
+                  {% endfor %}
+                </select>
+                {% if gl_form.user_id.errors %}
+                <small style="color: #dc2626">{{ gl_form.user_id.errors|striptags }}</small>
+                {% endif %}
+              </div>
+
+              <div class="field">
+                <label for="id_gl_code">{{ gl_form.gl_code.label }}</label>
+                <select name="gl_code" id="id_gl_code" required>
+                  <option value="">---------</option>
+                  {% for gl_code_value, gl_code_display in gl_form.gl_code.field.choices %}
+                    {% if gl_code_value %}
+                    <option value="{{ gl_code_value }}">
+                      {{ gl_code_display }}
+                    </option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+                {% if gl_form.gl_code.errors %}
+                <small style="color: #dc2626">{{ gl_form.gl_code.errors|striptags }}</small>
+                {% endif %}
+              </div>
+            </div>
+
+            <button type="submit">Assign General Ledger</button>
+          </form>
+
+        {% if team_members %}
+        <ul class="team-list">
+          {% for member in team_members %}
+          <li class="team-member">
+            <div class="team-member-name">
+              {% with full_name=member.user.get_full_name %}
+                {% if full_name %}{{ full_name }} <span class="team-member-role">{{ member.user_role }}</span>{% else %}{{ member.user.username }} <span class="team-member-role">{{ member.user_role }}</span>{% endif %}
+              {% endwith %}
+            </div>
+            <div class="team-member-email">{{ member.user.email }}</div>
+            {% if member.gl_codes %}
+            <div class="team-member-gl-codes">
+              <strong>Assigned GL Codes:</strong> {{ member.gl_codes|join:", " }}
+            </div>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="empty-state">
+          <p>No team members yet. Add users to your team using the form on the right.</p>
+        </div>
+        {% endif %}
+      </section>
+
+      <!-- Right Panel: Add Team Members -->
+      <section class="panel-1" style="margin-right:0; padding-bottom: 2rem;">
+        <h2>Add Member to {{ department.name }}</h2>
+        <p>Select a user and assign them a role in your department.</p>
+
+        {% if messages %}
+        <div class="messages">
+          {% for message in messages %}
+          <div class="message {{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="add_member">
+
+          <div class="field-wrapper">
+            <div class="field">
+              {{ form.user.label_tag }} {{ form.user }}
+              {% if form.user.help_text %}
+              <small style="color: var(--subtle)">{{ form.user.help_text }}</small>
+              {% endif %}
+              {% if form.user.errors %}
+              <small style="color: #dc2626">{{ form.user.errors|striptags }}</small>
+              {% endif %}
+            </div>
+
+            <div class="field">
+              {{ form.user_role.label_tag }} {{ form.user_role }}
+              {% if form.user_role.help_text %}
+              <small style="color: var(--subtle)">{{ form.user_role.help_text }}</small>
+              {% endif %}
+              {% if form.user_role.errors %}
+              <small style="color: #dc2626">{{ form.user_role.errors|striptags }}</small>
+              {% endif %}
+            </div>
+          </div>
+
+          {% if form.non_field_errors %}
+          <div class="message error">{{ form.non_field_errors|striptags }}</div>
+          {% endif %}
+
+          <button type="submit">Add to Team</button>
+        </form>
+
+        <div class="available-users-section">
+          <h3 style="font-size: 1rem; margin: 0; color: #0f172a;">Available Users</h3>
+          
+          <form method="get" class="search-form">
+            <input
+              type="search"
+              name="search"
+              placeholder="Search by name, username, or email..."
+              value="{{ search_query }}"
+            />
+            <button type="submit">Search</button>
+          </form>
+
+          {% if available_users %}
+          <div class="users-table-container">
+            <table class="users-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Username</th>
+                  <th>Email</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for user in available_users %}
+                <tr>
+                  <td>
+                    {% with full_name=user.get_full_name %}
+                      {% if full_name %}{{ full_name }}{% else %}{{ user.username }}{% endif %}
+                    {% endwith %}
+                  </td>
+                  <td>{{ user.username }}</td>
+                  <td>{{ user.email }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div style="padding: 2rem; background: #f8fafc; border-radius: 8px; text-align: center;">
+            <p style="color: var(--subtle); font-size: 0.9rem; margin: 0;">
+              {% if search_query %}
+                No users found matching "{{ search_query }}".
+              {% else %}
+                All available users have been added to the team.
+              {% endif %}
+            </p>
+          </div>
+          {% endif %}
+        </div>
+      </section>
+    </main>
+
+    {% include 'base/footer.html' %}
+  </body>
+</html>

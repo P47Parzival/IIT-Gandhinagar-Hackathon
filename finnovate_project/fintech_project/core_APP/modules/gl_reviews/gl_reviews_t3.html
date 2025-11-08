@@ -1,0 +1,736 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>GL Review | Finnovate</title>
+    <link rel="stylesheet" href="{% static 'base.css' %}" />
+    <link rel="stylesheet" href="{% static 'output.css' %}" />
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.png' %}" />
+
+    <style>
+      main {
+        padding: 1rem 1rem;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        align-items: start;
+      }
+
+      .table-wrapper {
+        background: white;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        height: fit-content;
+      }
+
+      .table-header {
+        padding: 0rem 1rem 1rem 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .table-header h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #0f172a;
+      }
+
+      .table-container {
+        overflow-x: auto;
+      }
+
+      .gl-table {
+        width: 100%;
+        font-size: 0.85rem;
+      }
+
+      .gl-table thead {
+        background: #f1f5f9;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .gl-table th {
+        padding: 0.9rem 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid var(--border);
+      }
+
+      .gl-table td {
+        padding: 0.9rem 1rem;
+        border-bottom: 1px solid var(--border);
+        color: #1f2937;
+        font-size: 0.85rem;
+      }
+
+      .gl-table tbody tr:hover {
+        background: #f8fafc;
+      }
+
+      .gl-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .status-pending {
+        background: rgba(251, 191, 36, 0.15);
+        color: #92400e;
+      }
+
+      .status-done {
+        background: rgba(16, 185, 129, 0.15);
+        color: #065f46;
+      }
+
+      .status-approved {
+        background: rgba(59, 130, 246, 0.15);
+        color: #1e40af;
+      }
+
+      .status-rejected {
+        background: rgba(239, 68, 68, 0.15);
+        color: #991b1b;
+      }
+
+      .action-link {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 500;
+        cursor: pointer;
+        transition: color 0.2s ease;
+        font-size: 0.85rem;
+      }
+
+      .action-link:hover {
+        color: var(--accent-hover);
+        text-decoration: underline;
+      }
+
+      .view-link {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.85rem;
+      }
+
+      .view-link:hover {
+        text-decoration: underline;
+      }
+
+      .file-link {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.85rem;
+        display: block;
+        margin: 0.25rem 0;
+      }
+
+      .file-link:hover {
+        text-decoration: underline;
+      }
+
+      .empty-state {
+        padding: 3rem 2rem;
+        text-align: center;
+        color: var(--subtle);
+      }
+
+      .empty-state p {
+        margin: 0;
+        font-size: 0.9rem;
+      }
+
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        max-width: 600px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: var(--shadow-lg);
+      }
+
+      .modal-header {
+        margin-bottom: 1.5rem;
+      }
+
+      .modal-header h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.3rem;
+        color: #0f172a;
+      }
+
+      .modal-header p {
+        margin: 0;
+        color: var(--subtle);
+        font-size: 0.9rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.25rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #1f2937;
+        font-size: 0.9rem;
+      }
+
+      .form-group textarea,
+      .form-group input[type="file"] {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font: inherit;
+        font-size: 0.9rem;
+        box-sizing: border-box;
+      }
+
+      .form-group textarea {
+        resize: vertical;
+        min-height: 120px;
+      }
+
+      .form-group input[type="file"] {
+        cursor: pointer;
+      }
+
+      .form-group textarea:focus,
+      .form-group input[type="file"]:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(199, 108, 74, 0.1);
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+      }
+
+      .btn {
+        padding: 0.7rem 1.5rem;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--accent-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(199, 108, 74, 0.3);
+      }
+
+      .btn-secondary {
+        background: #e5e7eb;
+        color: #1f2937;
+      }
+
+      .btn-secondary:hover {
+        background: #d1d5db;
+      }
+
+      .panel {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: 0 15px 40px rgba(15, 23, 42, 0.08);
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        height: 100%;
+      }
+
+      .panel h1,
+      .panel h2 {
+        margin: 0;
+        color: #0f172a;
+      }
+
+      .panel p {
+        margin: 0;
+        color: var(--subtle);
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      label {
+        font-weight: 600;
+        color: #1f2937;
+      }
+
+      input,
+      select {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.65rem 0.75rem;
+        font: inherit;
+        background: #f8fafc;
+        transition: border 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      input {
+        width: 100%;
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        background: #fff;
+      }
+
+      button {
+        align-self: flex-start;
+        padding: 0.7rem 1.6rem;
+        border-radius: 999px;
+        border: none;
+        background: var(--accent);
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
+      }
+
+      .table-panel .header {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+      }
+
+      .search-form {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      .search-form input {
+        flex: 1;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1.5rem;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      th,
+      td {
+        padding: 0.9rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        background: white;
+      }
+
+      th {
+        background: #f1f5f9;
+        font-weight: 600;
+        color: #0f172a;
+      }
+
+      tbody tr:hover td {
+        background: #f8fafc;
+      }
+    </style>
+  </head>
+
+  <body>
+    {% include 'base/navbar.html' %}
+
+    <main>
+      <div class="grid"></div>
+
+      <!-- Preparer Side (Left) -->
+      <div class="panel table-panel">
+        <div class="table-header">
+          <h2>Preparer GLs</h2>
+        </div>
+        <div class="table-container">
+          {% if preparer_gls %}
+          <table class="gl-table">
+            <thead>
+              <tr>
+                <th>GL Code</th>
+                <th>GL Name</th>
+                <th>Dept.</th>
+                <th>Assigned On</th>
+                <th>Status</th>
+                <th>Supporting Documents</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for gl in preparer_gls %}
+              <tr>
+                <td><strong>{{ gl.gl_code }}</strong></td>
+                <td>{{ gl.gl_name }}</td>
+                <td>{{ gl.department }}</td>
+                <td>{{ gl.assigned_on }}</td>
+                <td>
+                  <span
+                    class="status-badge {% if gl.status_code == 1 %}status-pending {% elif gl.status_code == 2 %}status-done {% elif gl.status_code == 3 %}status-approved {% elif gl.status_code == 4 %}status-rejected {% else %}status-pending{% endif %}"
+                  >
+                    {{ gl.status }}
+                  </span>
+                </td>
+                <td>
+                  {% if gl.supporting_documents %} {% for doc in gl.supporting_documents %}
+                  <a href="{{ doc.file_url }}" class="file-link" target="_blank"
+                    >{{ doc.file_name }}</a
+                  >
+                  {% endfor %} {% else %}
+                  <span style="color: var(--subtle); font-size: 0.8rem"
+                    >No documents</span
+                  >
+                  {% endif %}
+                </td>
+                <td>
+                  {% if gl.status_code == 1 %}
+                    <a
+                      href="#"
+                      class="action-link status-badge status-pending"
+                      onclick="openUploadModal('{{ gl.assignment_id }}', '{{ gl.gl_code }}', '{{ gl.gl_name|escapejs }}')"
+                    >
+                      Upload Document
+                    </a>
+                    <br />
+                    <a
+                      href="#"
+                      class="action-link status-badge status-approved"
+                      onclick="openReviewModal('{{ gl.assignment_id }}', '{{ gl.gl_code }}', '{{ gl.gl_name|escapejs }}')"
+                      style="margin-top: 0.5rem; display: inline-block; color: #2563eb"
+                    >
+                      Submit Review
+                    </a>
+
+                  {% elif gl.status_code == 2 %}
+                    <span style="color: #16a34a; font-weight: 500;">GL Review Submitted</span>
+
+                  {% elif gl.status_code == 3 %}
+                    <span style="color: #2563eb; font-weight: 500;">✔ Approved</span>
+
+                  {% elif gl.status_code == 4 %}
+                    <span style="color: #dc2626; font-weight: 500;">❌ Rejected — Rework Required</span>
+                    <br />
+                    <a
+                      href="#"
+                      class="action-link"
+                      onclick="openUploadModal('{{ gl.assignment_id }}', '{{ gl.gl_code }}', '{{ gl.gl_name|escapejs }}')"
+                      style="margin-top: 0.5rem; display: inline-block"
+                    >
+                      Re-Upload Document
+                    </a>
+
+                  {% else %}
+                    <span style="color: #6b7280;">Not Started</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <div class="empty-state">
+            <p>No Preparer GL codes assigned to you yet.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Reviewer Side (Right) -->
+      <div class="panel table-panel">
+        <div class="table-header">
+          <h2>Reviewer GLs</h2>
+        </div>
+        <div class="table-container">
+          {% if reviewer_gls %}
+          <table class="gl-table">
+            <thead>
+              <tr>
+                <th>GL Code</th>
+                <th>GL Name</th>
+                <th>Department</th>
+                <th>Assigned On</th>
+                <th>Status</th>
+                <th>Supporting Documents</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for gl in reviewer_gls %}
+              <tr>
+                <td><strong>{{ gl.gl_code }}</strong></td>
+                <td>{{ gl.gl_name }}</td>
+                <td>{{ gl.department }}</td>
+                <td>{{ gl.assigned_on }}</td>
+                <td>
+                  <span
+                    class="status-badge {% if gl.status_code == 1 %}status-pending {% elif gl.status_code == 2 %}status-done {% elif gl.status_code == 3 %}status-approved {% elif gl.status_code == 4 %}status-rejected {% else %}status-pending{% endif %}"
+                  >
+                    {{ gl.status }}
+                  </span>
+                </td>
+                <td>
+                  {% if gl.supporting_documents %} {% for doc in gl.supporting_documents %}
+                  <a href="{{ doc.file_url }}" class="file-link" target="_blank"
+                    >{{ doc.file_name }}</a
+                  >
+                  {% endfor %} {% else %}
+                  <span style="color: var(--subtle); font-size: 0.8rem"
+                    >No documents</span
+                  >
+                  {% endif %}
+                </td>
+                <td>
+                  {% if gl.status == "Awaiting Approval" %}
+                  <a
+                    href="#"
+                    class="action-link"
+                    onclick="openReviewModal('{{ gl.assignment_id }}', '{{ gl.gl_code }}', '{{ gl.gl_name|escapejs }}')"
+                  >
+                    Submit Review
+                  {% else %}
+                  WAIT
+                  </a>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <div class="empty-state">
+            <p>No Reviewer GL codes assigned to you yet.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </main>
+
+    <!-- Upload Document Modal (Preparer only) -->
+    <div id="uploadModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Upload Supporting Document</h3>
+          <p id="uploadModalGlInfo"></p>
+        </div>
+        <form
+          id="uploadForm"
+          method="post"
+          action="{% url 'upload_gl_supporting_document' %}"
+          enctype="multipart/form-data"
+        >
+          {% csrf_token %}
+          <input
+            type="hidden"
+            id="uploadAssignmentId"
+            name="assignment_id"
+            value=""
+          />
+          <input type="hidden" id="uploadGlCode" name="gl_code" value="" />
+
+          <div class="form-group">
+            <label for="supporting_document">Supporting Document *</label>
+            <input
+              type="file"
+              id="supporting_document"
+              name="supporting_document"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+              required
+            />
+            <small
+              style="
+                color: var(--subtle);
+                font-size: 0.8rem;
+                display: block;
+                margin-top: 0.5rem;
+              "
+            >
+              Accepted formats: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG
+            </small>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="closeUploadModal()"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Upload Document
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Submit GL Review</h3>
+          <p id="modalGlInfo"></p>
+        </div>
+        <form
+          id="reviewForm"
+          method="post"
+          action="{% url 'submit_gl_review_preparer' %}"
+        >
+          {% csrf_token %}
+          <input
+            type="hidden"
+            id="assignmentId"
+            name="assignment_id"
+            value=""
+          />
+          <input type="hidden" id="glCode" name="gl_code" value="" />
+
+          <div class="form-group">
+            <label for="reconciliation_notes">Reconciliation Notes *</label>
+            <textarea
+              id="reconciliation_notes"
+              name="reconciliation_notes"
+              placeholder="Enter your review notes, findings, or reconciliation details..."
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="closeReviewModal()"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Submit Review</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {% include 'base/footer.html' %}
+
+    <script>
+      function openUploadModal(assignmentId, glCode, glName) {
+        document.getElementById("uploadAssignmentId").value = assignmentId;
+        document.getElementById("uploadGlCode").value = glCode;
+        document.getElementById(
+          "uploadModalGlInfo"
+        ).textContent = `GL Code: ${glCode} - ${glName}`;
+        document.getElementById("uploadModal").classList.add("active");
+      }
+
+      function closeUploadModal() {
+        document.getElementById("uploadModal").classList.remove("active");
+        document.getElementById("uploadForm").reset();
+      }
+
+      function openReviewModal(assignmentId, glCode, glName) {
+        document.getElementById("assignmentId").value = assignmentId;
+        document.getElementById("glCode").value = glCode;
+        document.getElementById(
+          "modalGlInfo"
+        ).textContent = `GL Code: ${glCode} - ${glName}`;
+        document.getElementById("reviewModal").classList.add("active");
+      }
+
+      function closeReviewModal() {
+        document.getElementById("reviewModal").classList.remove("active");
+        document.getElementById("reviewForm").reset();
+      }
+
+      // Close modals on outside click
+      document
+        .getElementById("uploadModal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            closeUploadModal();
+          }
+        });
+
+      document
+        .getElementById("reviewModal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            closeReviewModal();
+          }
+        });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,358 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tier 3 · Balance Sheet Overview</title>
+    <link rel="stylesheet" href="{% static 'base.css' %}" />
+    <link rel="stylesheet" href="{% static 'output.css' %}" />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.png' %}">
+    <style>
+      :root {
+        --sap-blue: #0070f2;
+        --sap-bg: #f5f7fb;
+        --sap-fg: #1a1a1a;
+        --sap-border: #d0d7e3;
+        --sap-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+
+      html, body {
+        height: auto;
+        min-height: 100vh;
+      }
+
+      body {
+        background: var(--sap-bg);
+        color: var(--sap-fg);
+        font-family: 'Open Sans', '72', Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden; /* Prevent body horizontal scroll */
+      }
+
+      .page-shell {
+        max-width: none;          /* Full width - no zoom needed */
+        width: 100%;
+        margin: 0 auto 4rem;
+        padding: 0 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        box-sizing: border-box;
+      }
+
+      .breadcrumb {
+        padding-top: 2rem;
+        font-size: 0.88rem;
+        color: #3f4c6b;
+        letter-spacing: 0.03em;
+      }
+
+      .breadcrumb a {
+        color: var(--sap-blue);
+        text-decoration: none;
+      }
+
+      .breadcrumb a:hover {
+        text-decoration: underline;
+      }
+
+      .headline {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid var(--sap-border);
+        padding: 1.75rem 2rem;
+        box-shadow: var(--sap-shadow);
+      }
+
+      .headline h1 {
+        margin: 0;
+        font-size: 1.6rem;
+        font-weight: 600;
+      }
+
+      .headline p {
+        margin: 0.75rem 0 0;
+        color: #4b5563;
+        max-width: 840px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid var(--sap-border);
+        padding: 1.25rem 1.5rem;
+        box-shadow: var(--sap-shadow);
+      }
+
+      .stat-card span {
+        display: block;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #64748b;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-card strong {
+        font-size: 1.6rem;
+        color: #0f172a;
+      }
+
+      .table-wrapper {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid var(--sap-border);
+        box-shadow: var(--sap-shadow);
+        overflow: hidden;
+      }
+
+      .table-header {
+        padding: 1.25rem 2rem;
+        border-bottom: 1px solid var(--sap-border);
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        background: #fafcff;
+      }
+
+      .table-header h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+      }
+
+      .table-header span {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .matrix-table {
+        width: 100%;
+        min-width: 1000px; /* Prevents table from collapsing too small */
+        border-collapse: collapse;
+        font-size: 0.92rem;
+      }
+
+      .matrix-table thead {
+        background: #eef4ff;
+        color: var(--sap-blue);
+      }
+
+      .matrix-table th {
+        padding: 0.95rem 1rem;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid var(--sap-border);
+        white-space: nowrap;
+        position: sticky;
+        top: 0;
+        background: #eef4ff;
+        z-index: 2;
+      }
+
+      .matrix-table th:first-child {
+        left: 0;
+        z-index: 3;
+      }
+
+      .matrix-table td {
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid #e2e8f0;
+        background: white;
+      }
+
+      .matrix-table tbody tr:hover {
+        background: #f8fbff;
+      }
+
+      .matrix-table td:first-child {
+        position: sticky;
+        left: 0;
+        background: white;
+        font-weight: 600;
+        z-index: 1;
+      }
+
+      .flag-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+      }
+
+      .flag-pill.green {
+        background: rgba(34, 197, 94, 0.12);
+        color: #15803d;
+      }
+
+      .flag-pill.amber {
+        background: rgba(245, 158, 11, 0.15);
+        color: #b45309;
+      }
+
+      .flag-pill.red {
+        background: rgba(239, 68, 68, 0.12);
+        color: #b91c1c;
+      }
+
+      .empty-state {
+        padding: 3rem 2rem;
+        text-align: center;
+        color: #6b7280;
+        font-size: 0.95rem;
+        background: #fafcff;
+      }
+
+      /* Responsive improvements */
+      @media (max-width: 1024px) {
+        .page-shell {
+          padding: 0 1rem;
+        }
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+        .matrix-table {
+          min-width: 800px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .page-shell {
+          padding: 0 0.5rem;
+        }
+        .headline,
+        .stat-card,
+        .table-header {
+          padding: 1.25rem 1rem;
+        }
+        .matrix-table {
+          min-width: 600px;
+          font-size: 0.85rem;
+        }
+        .matrix-table th,
+        .matrix-table td {
+          padding: 0.75rem 0.6rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    {% include 'base/navbar.html' %}
+
+    <main class="page-shell">
+      <div class="breadcrumb">
+        <a href="{% url 'gl_reviews_page' %}">GL Reviews</a>
+        &nbsp;/&nbsp;
+        Tier 3 · Balance Sheet Ownership
+      </div>
+
+      <section class="headline">
+        <h1>Tier 3 · Governance Insight Layer</h1>
+        <p>
+          Review ownership, reconciliation status, and variance flags across all balance sheet accounts
+          uploaded by your team. Use this view to prioritize follow-ups and track assurance progress.
+        </p>
+      </section>
+
+      <section class="stats-grid">
+        <div class="stat-card">
+          <span>Total Accounts</span>
+          <strong>{{ stats.total }}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Open Recon Items</span>
+          <strong>{{ stats.open_items }}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Flagged Accounts</span>
+          <strong>{{ stats.flagged }}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Analysis Required</span>
+          <strong>{{ stats.analysis_required }}</strong>
+        </div>
+      </section>
+
+      <section class="table-wrapper">
+        <div class="table-header">
+          <h2>Balance Sheet Accounts</h2>
+          <span>Sorted by newest first. Data scoped to your user workspace.</span>
+        </div>
+
+        {% if balance_sheets %}
+          <div class="table-container">
+            <table class="matrix-table">
+              <thead>
+                <tr>
+                  <th>GL Account</th>
+                  <th>Description</th>
+                  <th>Main Head</th>
+                  <th>Sub Head</th>
+                  <th>Department</th>
+                  <th>Owner</th>
+                  <th>Reviewer</th>
+                  <th>Recon Status</th>
+                  <th>Variance %</th>
+                  <th>Flag</th>
+                  <th>Year</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in balance_sheets %}
+                  <tr>
+                    <td>{{ item.gl_acct }}</td>
+                    <td>{{ item.gl_account_name|default:'—' }}</td>
+                    <td>{{ item.main_head|default:'—' }}</td>
+                    <td>{{ item.sub_head|default:'—' }}</td>
+                    <td>{{ item.responsible_department|default:'—' }}</td>
+                    <td>{{ item.department_spoc|default:'—' }}</td>
+                    <td>{{ item.department_reviewer|default:'—' }}</td>
+                    <td>{{ item.recon_status|default:'Pending' }}</td>
+                    <td>{{ item.variance_percent|default:'—' }}</td>
+                    <td>
+                      {% if item.flag_color %}
+                        <span class="flag-pill {{ item.flag_color|lower }}">{{ item.flag_color|upper }}</span>
+                      {% else %}
+                        —
+                      {% endif %}
+                    </td>
+                    <td>{{ item.fiscal_year|default:'—' }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="empty-state">
+            No balance sheet records found for your user yet. Use the Link Data module to upload sources.
+          </div>
+        {% endif %}
+      </section>
+    </main>
+
+    {% include 'base/footer.html' %}
+  </body>
+</html>
