@@ -23,11 +23,11 @@ Whether you want to try the autonomous agent, the finance command centre, or wir
 
 ### System Architecture
 
-![System Architecture](https://github.com/P47Parzival/IIT-Gandhinagar-Hackathon/blob/main/assests/architecture_diagram)
+![System Architecture](https://github.com/P47Parzival/IIT-Gandhinagar-Hackathon/blob/main/assests/architecture_diagram.png)
 
 ### CFO Workflow
 
-![CFO Workflow](https://github.com/P47Parzival/IIT-Gandhinagar-Hackathon/blob/main/assests/cfo_workflow)
+![CFO Workflow](https://github.com/P47Parzival/IIT-Gandhinagar-Hackathon/blob/main/assests/cfo_workflow.png)
 
 The CFO workflow demonstrates the end-to-end process:
 1. **Data Ingestion** – Import GL data from SAP/ERP systems
@@ -91,7 +91,7 @@ Streamlined data integration:
 - Supporting document attachment workflow
 
 ### RLHF Chat Interface
-![Chat Interface](https://github.com/P47Parzival/IIT-Gandhinagar-Hackathon/blob/main/assests/anomaly_workflow)
+![Chat Interface](https://github.com/P47Parzival/IIT-Gandhinagar-Hackathon/blob/main/assests/anomaly-workflow.png)
 
 Intelligent conversational AI:
 - Dual-response comparison (internal vs. external agent)
