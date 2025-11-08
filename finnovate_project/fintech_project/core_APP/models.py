@@ -7,8 +7,10 @@ import uuid
 
 class CustomUser(AbstractUser):
     USER_TYPE_CHOICES = (
-        (1, 'admin'),
-        (2, 'user'),
+        (1, 'Admin'),
+        (2, 'Department Head'), # per dept head
+        (3, 'BUFC'),
+        (4, 'User')
     )
     user_type = models.PositiveSmallIntegerField(choices=USER_TYPE_CHOICES, default=2)
 
@@ -17,6 +19,53 @@ class CustomUser(AbstractUser):
     
     class Meta:
         db_table = 'Users'
+
+
+class Department(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'departments'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.name
+
+
+class ResponsibilityMatrix(models.Model):
+
+    USER_ROLE_CHOICES = (
+        (2, 'Department Head'),
+        (3, 'BUFC'),
+        (4, 'Preparer'),
+        (5, 'Reviewer')
+    )
+    GL_CODE_STATUS_CHOICES = (
+        (1, 'Pending'),
+        (2, 'Done'),
+        (3, 'Approved'),
+        (4, 'Rejected')
+    )
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="responsibility_matrix")
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
+    user_role = models.PositiveSmallIntegerField(choices=USER_ROLE_CHOICES, default=5)
+
+    gl_code = models.CharField(max_length=50, null=True, blank=True)
+    gl_code_status = models.PositiveSmallIntegerField(choices=GL_CODE_STATUS_CHOICES, null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "responsibility_matrix"
+        unique_together = ("user", "gl_code")
+        ordering = ["user", "gl_code"]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.gl_code}"
 
 
 class Conversation(models.Model):
@@ -76,11 +125,20 @@ class LinkedData(models.Model):
 
 
 class UploadedFile(models.Model):
+    TABLE_TYPE_CHOICES = [
+        ("trial_balance", "Trial Balance"),
+        ("balance_sheet", "Balance Sheet"),
+    ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='uploaded_files')
     file = models.FileField(upload_to='uploads/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, default='pending')
+
+    table_type = models.CharField(
+        max_length=50,
+        choices=TABLE_TYPE_CHOICES,
+    )
 
     class Meta:
         db_table = 'uploaded_files'
@@ -130,7 +188,11 @@ class SAPLink(models.Model):
 
     connected_at = models.DateTimeField(auto_now_add=True)
     last_synced_at = models.DateTimeField(blank=True, null=True)
-    status = models.CharField(max_length=20, default='pending')
+    status = models.JSONField(
+        default=dict,
+        blank=True,
+        null=True
+    )
 
     class Meta:
         db_table = 'sap_erp_links'
@@ -139,6 +201,14 @@ class SAPLink(models.Model):
     def __str__(self):
         return f"{self.system_name} ({self.system_type})"
     
+    def save(self, *args, **kwargs):
+        if not self.status or not isinstance(self.status, dict):
+            self.status = {
+                "trial_balance": "pending",
+                "balance_sheet": "pending"
+            }
+        super().save(*args, **kwargs)
+
 
 # TIME TO BUILD UNIFIED DBs, MOTHERFUC--
 
@@ -187,7 +257,7 @@ class TrialBalance(models.Model):
 
     # --- GL Information ---
     gl_code = models.CharField(max_length=50)
-    gl_name = models.CharField(max_length=255)
+    gl_name = models.CharField(max_length=255, null=True, blank=True)
     group_gl_code = models.CharField(max_length=50, null=True, blank=True)
     group_gl_name = models.CharField(max_length=255, null=True, blank=True)
 
@@ -204,40 +274,86 @@ class TrialBalance(models.Model):
     # --- Audit ---
     added_at = models.DateTimeField(auto_now_add=True)
 
+    # --- Supporting Docx ---
+    supporting_document = models.FileField(upload_to="supporting_documents/", null=True, blank=True)
+
     class Meta:
         db_table = "trial_balances"
         ordering = ["-added_at"]
 
     def __str__(self):
         return f"{self.gl_code} - {self.gl_name} ({self.fs_main_head or 'Uncategorized'})"
+    
 
-
-class ResponsibilityMatrix(models.Model):
+class BalanceSheet(models.Model):
+    """Simplified, realistic Balance Sheet model aligned with your SAP HANA schema."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="responsibility_matrix")
-    gl_code = models.CharField(max_length=50)
-    responsible_person = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="responsible_gls")
-    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="reviewer_gls")
-    fc = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="fc_gls")
-    department = models.CharField(max_length=100, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="balance_sheets"
+    )    
+    BS_PL = models.CharField(max_length=10, null=True, blank=True)
+    status = models.CharField(max_length=50, null=True, blank=True)
+    gl_acct = models.CharField(max_length=20)
+    gl_account_name = models.CharField(max_length=100, null=True, blank=True)
+    main_head = models.CharField(max_length=100, null=True, blank=True)
+    sub_head = models.CharField(max_length=100, null=True, blank=True)
+    cml = models.CharField(max_length=20, null=True, blank=True)
+    frequency = models.CharField(max_length=20, null=True, blank=True)
+    responsible_department = models.CharField(max_length=50, null=True, blank=True)
+    department_spoc = models.CharField(max_length=100, null=True, blank=True)
+    department_reviewer = models.CharField(max_length=100, null=True, blank=True)
+    query_type_action_points = models.TextField(blank=True, null=True)
+    working_needed = models.TextField(blank=True, null=True)
+    confirmation_type = models.CharField(max_length=100, null=True, blank=True)
+    recon_status = models.CharField(max_length=100, null=True, blank=True)
+    variance_percent = models.CharField(max_length=50, null=True, blank=True)
+    flag_color = models.CharField(max_length=20, null=True, blank=True)
+    report_type = models.CharField(max_length=100, null=True, blank=True)
+    analysis_required = models.CharField(max_length=10, null=True, blank=True)
+    review_checkpoint_abex = models.CharField(max_length=500, blank=True, null=True)
+    
+    # --- YYYY ---
+    fiscal_year = models.CharField(max_length=10, null=True, blank=True)
+
+    # --- Audit ---
+    added_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = "responsibility_matrix"
-        unique_together = ("user", "gl_code")
-        ordering = ["user", "gl_code"]
+        db_table = 'balance_sheet'
 
     def __str__(self):
-        return f"{self.user.username} - {self.gl_code}"
+        return f"{self.BS_PL} - {self.gl_acct} ({self.status})"
 
+class GLReview(models.Model):
+    GL_CODE_STATUS_CHOICES = (
+        (1, 'Pending'),
+        (2, 'Awaiting Approval'),
+        (3, 'Approved'),
+        (4, 'Rejected')
+    )
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    trial_balance = models.ForeignKey(TrialBalance, on_delete=models.CASCADE, related_name="reviews")
+    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    status = models.PositiveSmallIntegerField(choices=GL_CODE_STATUS_CHOICES, default=1)
+    reconciliation_notes = models.TextField(blank=True, null=True)
+    reviewed_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+    class Meta:
+        db_table = "gl_reviews"
+        ordering = ["-reviewed_at"]
+
+    def __str__(self):
+        return f"{self.trial_balance.gl_code} - {self.status}"
+    
 
 class GLSupportingDocument(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    trial_balance = models.ForeignKey(TrialBalance, on_delete=models.CASCADE, related_name="supporting_docs")
-    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    gl_review = models.ForeignKey(GLReview, on_delete=models.CASCADE, related_name="supporting_documents", null=True, blank=True)
     file = models.FileField(upload_to="gl_supporting/")
     uploaded_at = models.DateTimeField(auto_now_add=True)
-    description = models.TextField(blank=True, null=True)
 
     class Meta:
         db_table = "gl_supporting_documents"
@@ -247,45 +363,35 @@ class GLSupportingDocument(models.Model):
         return f"Support for {self.trial_balance.gl_code}"
 
 
-class GLReview(models.Model):
-    STATUS_CHOICES = [
-        ("pending", "Pending"),
-        ("in_review", "In Review"),
-        ("approved", "Approved"),
-        ("rejected", "Rejected"),
-    ]
-
+class ReviewTrail(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    trial_balance = models.ForeignKey(TrialBalance, on_delete=models.CASCADE, related_name="reviews")
-    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
-    comments = models.TextField(blank=True, null=True)
-    reviewed_at = models.DateTimeField(blank=True, null=True)
+    reviewer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="review_trails"
+    )
+    reviewer_responsibility_matrix = models.ForeignKey(
+        "ResponsibilityMatrix",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="review_trails"
+    )
+    gl_review = models.ForeignKey(
+        "GLReview",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="review_trails"
+    )
+    previous_trail = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="next_trails"
+    )
 
-    class Meta:
-        db_table = "gl_reviews"
-        ordering = ["-reviewed_at"]
-
-    def __str__(self):
-        return f"{self.trial_balance.gl_code} - {self.status}"
-
-
-class ValidationLog(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    trial_balance = models.ForeignKey(TrialBalance, on_delete=models.CASCADE, related_name="validation_logs")
-    rule_name = models.CharField(max_length=255)
-    message = models.TextField()
-    severity = models.CharField(max_length=20, choices=[
-        ("info", "Info"),
-        ("warning", "Warning"),
-        ("error", "Error"),
-    ])
     created_at = models.DateTimeField(auto_now_add=True)
-    resolved = models.BooleanField(default=False)
 
     class Meta:
-        db_table = "validation_logs"
         ordering = ["-created_at"]
-
-    def __str__(self):
-        return f"{self.rule_name} - {self.trial_balance.gl_code}"
