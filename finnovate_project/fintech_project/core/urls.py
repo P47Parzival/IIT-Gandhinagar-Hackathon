@@ -26,7 +26,10 @@ urlpatterns = [
     path('auth/', include('core_APP.modules.auth.auth_urls')),
     path('dashboard/', include('core_APP.modules.dashboard.dashboard_urls')),
     path('link/', include('core_APP.modules.link_data.link_data_urls')),
-    path('reports/', include('core_APP.modules.reports.reports_urls')),
+    path('tableau/', include('core_APP.modules.tableau.tableau_urls')),
+    path('gl-reviews/', include('core_APP.modules.gl_reviews.gl_reviews_urls')),
+    path('department-management/', include('core_APP.modules.department_management.department_management_urls')),
+    path('team-management/', include('core_APP.modules.team_management.team_management_urls'))
 ]
 
 if settings.DEBUG:

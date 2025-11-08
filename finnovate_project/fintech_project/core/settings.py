@@ -139,10 +139,15 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
 GOOGLE_AI_API_KEY = os.getenv('GOOGLE_AI_API_KEY', '')
 COMPOSIO_API_KEY = os.getenv('COMPOSIO_API_KEY', '')
 
-# Agentic chatbot integration (Next.js bridge)
-CHATBOT_API_BASE_URL = os.getenv('CHATBOT_API_BASE_URL', 'http://localhost:3000')
-CHATBOT_INTERNAL_TOKEN = os.getenv('CHATBOT_INTERNAL_TOKEN', '')
-
 # AI Model Configuration
 AI_MODEL = os.getenv('AI_MODEL', 'gpt-4o-mini')  # Default to OpenAI
 AI_TEMPERATURE = float(os.getenv('AI_TEMPERATURE', '0.3'))
+
+# Email Settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv("EMAIL_HOST", default="smtp.gmail.com")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() in ("true", "1", "yes")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
